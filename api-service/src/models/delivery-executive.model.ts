@@ -1,0 +1,51 @@
+import {Entity, model, property} from '@loopback/repository';
+
+@model()
+export class DeliveryExecutive extends Entity {
+  @property({
+    type: 'string',
+    id: true,
+    generated: true,
+  })
+  id?: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  fname: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  lname: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  mobile: string;
+
+  @property({
+    type: 'string',
+  })
+  email?: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  executive_code: string;
+
+
+  constructor(data?: Partial<DeliveryExecutive>) {
+    super(data);
+  }
+}
+
+export interface DeliveryExecutiveRelations {
+  // describe navigational properties here
+}
+
+export type DeliveryExecutiveWithRelations = DeliveryExecutive & DeliveryExecutiveRelations;
