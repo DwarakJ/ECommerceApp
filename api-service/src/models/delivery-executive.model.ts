@@ -10,6 +10,18 @@ export class DeliveryExecutive extends Entity {
   id?: string;
 
   @property({
+    type: 'date',
+    required: false,
+  })
+  date_registered: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  display_picture: string;
+
+  @property({
     type: 'string',
     required: true,
   })
@@ -38,7 +50,6 @@ export class DeliveryExecutive extends Entity {
   })
   executive_code: string;
 
-
   constructor(data?: Partial<DeliveryExecutive>) {
     super(data);
   }
@@ -48,4 +59,5 @@ export interface DeliveryExecutiveRelations {
   // describe navigational properties here
 }
 
-export type DeliveryExecutiveWithRelations = DeliveryExecutive & DeliveryExecutiveRelations;
+export type DeliveryExecutiveWithRelations = DeliveryExecutive &
+  DeliveryExecutiveRelations;

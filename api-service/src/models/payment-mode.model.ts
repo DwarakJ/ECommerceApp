@@ -16,7 +16,6 @@ export class PaymentMode extends Entity {
   })
   status: string;
 
-
   constructor(data?: Partial<PaymentMode>) {
     super(data);
   }

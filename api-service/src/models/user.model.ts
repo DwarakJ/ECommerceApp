@@ -10,6 +10,18 @@ export class User extends Entity {
   id?: string;
 
   @property({
+    type: 'date',
+    required: false,
+  })
+  date_registered: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  display_picture: string;
+
+  @property({
     type: 'string',
     required: true,
   })
@@ -51,7 +63,6 @@ export class User extends Entity {
     type: 'string',
   })
   pincode?: string;
-
 
   constructor(data?: Partial<User>) {
     super(data);

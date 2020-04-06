@@ -16,7 +16,6 @@ export class DeliveryStatus extends Entity {
   })
   status: string;
 
-
   constructor(data?: Partial<DeliveryStatus>) {
     super(data);
   }
@@ -26,4 +25,5 @@ export interface DeliveryStatusRelations {
   // describe navigational properties here
 }
 
-export type DeliveryStatusWithRelations = DeliveryStatus & DeliveryStatusRelations;
+export type DeliveryStatusWithRelations = DeliveryStatus &
+  DeliveryStatusRelations;

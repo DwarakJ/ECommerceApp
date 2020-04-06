@@ -21,7 +21,6 @@ export class VendorDeliveryExecutiveBridge extends Entity {
   })
   deliver_executive_id: string;
 
-
   constructor(data?: Partial<VendorDeliveryExecutiveBridge>) {
     super(data);
   }
@@ -31,4 +30,5 @@ export interface VendorDeliveryExecutiveBridgeRelations {
   // describe navigational properties here
 }
 
-export type VendorDeliveryExecutiveBridgeWithRelations = VendorDeliveryExecutiveBridge & VendorDeliveryExecutiveBridgeRelations;
+export type VendorDeliveryExecutiveBridgeWithRelations = VendorDeliveryExecutiveBridge &
+  VendorDeliveryExecutiveBridgeRelations;

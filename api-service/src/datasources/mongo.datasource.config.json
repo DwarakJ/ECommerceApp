@@ -3,7 +3,7 @@
   "connector": "mongodb",
   "url": "",
   "host": "",
-  "port": 0,
+  "port": 27017,
   "user": "",
   "password": "",
   "database": "watersense",

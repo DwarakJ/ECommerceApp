@@ -61,7 +61,6 @@ export class Order extends Entity {
   })
   payment_mode?: number;
 
-
   constructor(data?: Partial<Order>) {
     super(data);
   }

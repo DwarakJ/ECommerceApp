@@ -10,6 +10,24 @@ export class Vendor extends Entity {
   id?: string;
 
   @property({
+    type: 'date',
+    required: false,
+  })
+  date_registered: string;
+
+  @property({
+    type: 'date',
+    required: false,
+  })
+  contract_expiry_date: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  display_picture: string;
+
+  @property({
     type: 'string',
   })
   fname?: string;
@@ -47,7 +65,6 @@ export class Vendor extends Entity {
     required: true,
   })
   email: string;
-
 
   constructor(data?: Partial<Vendor>) {
     super(data);

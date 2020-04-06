@@ -21,7 +21,6 @@ export class VendorUserBridge extends Entity {
   })
   id?: string;
 
-
   constructor(data?: Partial<VendorUserBridge>) {
     super(data);
   }
@@ -31,4 +30,5 @@ export interface VendorUserBridgeRelations {
   // describe navigational properties here
 }
 
-export type VendorUserBridgeWithRelations = VendorUserBridge & VendorUserBridgeRelations;
+export type VendorUserBridgeWithRelations = VendorUserBridge &
+  VendorUserBridgeRelations;

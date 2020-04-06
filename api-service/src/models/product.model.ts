@@ -15,6 +15,11 @@ export class Product extends Entity {
   })
   name: string;
 
+  @property({
+    type: 'string',
+    required: false,
+  })
+  display_picture: string;
 
   constructor(data?: Partial<Product>) {
     super(data);
