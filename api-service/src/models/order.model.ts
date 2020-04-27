@@ -47,7 +47,7 @@ export class Order extends Entity {
   @property({
     type: 'number',
   })
-  delivery_status?: number;
+  order_status?: number;
 
   @property({
     type: 'boolean',

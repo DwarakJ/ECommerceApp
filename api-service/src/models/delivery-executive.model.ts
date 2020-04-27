@@ -50,6 +50,12 @@ export class DeliveryExecutive extends Entity {
   })
   executive_code: string;
 
+  @property({
+    type: 'string',
+    required: false,
+  })
+  id_proof: string;
+
   constructor(data?: Partial<DeliveryExecutive>) {
     super(data);
   }

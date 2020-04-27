@@ -5,6 +5,8 @@ import {
   FilterExcludingWhere,
   repository,
   Where,
+  model,
+  property
 } from '@loopback/repository';
 import {
   post,
@@ -17,14 +19,50 @@ import {
   put,
   del,
   requestBody,
+  HttpErrors,
 } from '@loopback/rest';
-import {User} from '../models';
+import {User, UserCredentials} from '../models';
 import {UserRepository} from '../repositories';
+import {
+  authenticate,
+  TokenService,
+  UserService,
+} from '@loopback/authentication';
+import {UserProfile, securityId, SecurityBindings} from '@loopback/security';
+import {inject} from '@loopback/core';
+import {
+  TokenServiceBindings,
+  PasswordHasherBindings,
+  UserServiceBindings,
+} from '../keys';
+import {PasswordHasher} from '../services/hash.password.bcryptjs';
+import {validateCredentials} from '../services/validator';
+import {Credentials} from '../repositories/user.repository';
+import _ from 'lodash';
+import {
+  CredentialsRequestBody,
+  UserProfileSchema,
+} from './specs/user-controller.specs';
+
+@model()
+export class NewUserRequest extends User {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  password: string;
+}
 
 export class UserProfileController {
   constructor(
     @repository(UserRepository)
     public userRepository : UserRepository,
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
+    public passwordHasher: PasswordHasher,
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: TokenService,
+    @inject(UserServiceBindings.USER_SERVICE)
+    public userService: UserService<User, Credentials>,
   ) {}
 
   @post('/users', {
@@ -39,16 +77,45 @@ export class UserProfileController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, {
+          schema: getModelSchemaRef(NewUserRequest, {
             title: 'NewUser',
             
           }),
         },
       },
     })
-    user: User,
+    newUserRequest: NewUserRequest,
   ): Promise<User> {
-    return this.userRepository.create(user);
+        // All new users have the "customer" role by default
+        newUserRequest.roles = ['customer'];
+        // ensure a valid email value and password value
+        validateCredentials(_.pick(newUserRequest, ['email', 'password']));
+    
+        // encrypt the password
+        const password = await this.passwordHasher.hashPassword(
+          newUserRequest.password,
+        );
+    
+        try {
+          // create the new user
+          const savedUser = await this.userRepository.create(
+            _.omit(newUserRequest, 'password'),
+          );
+    
+          // set the password
+          await this.userRepository
+            .userCredentials(savedUser.id)
+            .create({password});
+    
+          return savedUser;
+        } catch (error) {
+          // MongoError 11000 duplicate key
+          if (error.code === 11000 && error.errmsg.includes('index: uniqueEmail')) {
+            throw new HttpErrors.Conflict('Email value is already taken');
+          } else {
+            throw error;
+          }
+        }
   }
 
   @get('/users/count', {
@@ -171,5 +238,61 @@ export class UserProfileController {
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
+  }
+
+  @get('/users/me', {
+    responses: {
+      '200': {
+        description: 'The current user profile',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(User, {includeRelations: true}),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('jwt')
+  async printCurrentUser(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+  ): Promise<UserProfile> {
+    currentUserProfile.id = currentUserProfile[securityId];
+    delete currentUserProfile[securityId];
+    return currentUserProfile;
+  }
+
+  @post('/users/login', {
+    responses: {
+      '200': {
+        description: 'Token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async login(
+    @requestBody(CredentialsRequestBody) credentials: Credentials,
+  ): Promise<{token: string}> {
+    // ensure the user exists, and the password is correct
+    const user = await this.userService.verifyCredentials(credentials);
+
+    // convert a User object into a UserProfile object (reduced set of properties)
+    const userProfile = this.userService.convertToUserProfile(user);
+
+    // create a JSON Web Token based on the user profile
+    const token = await this.jwtService.generateToken(userProfile);
+
+    return {token};
   }
 }

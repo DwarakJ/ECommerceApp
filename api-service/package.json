@@ -46,6 +46,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@loopback/authentication": "^4.2.1",
     "@loopback/boot": "^2.0.2",
     "@loopback/context": "^3.2.0",
     "@loopback/core": "^2.2.0",
@@ -55,7 +56,12 @@
     "@loopback/rest-explorer": "^2.0.2",
     "@loopback/service-proxy": "^2.0.2",
     "loopback-connector-mongodb": "^4.2.0",
-    "tslib": "^1.10.0"
+    "openapi-to-graphql-cli": "^2.1.0",
+    "tslib": "^1.10.0",
+    "isemail": "3.2.0",
+    "bcryptjs": "2.4.3",
+    "@types/jsonwebtoken": "8.3.9",
+    "jsonwebtoken": "8.5.1"
   },
   "devDependencies": {
     "@loopback/build": "^5.0.0",
@@ -69,6 +75,7 @@
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-eslint-plugin": "^2.2.1",
     "eslint-plugin-mocha": "^6.3.0",
-    "typescript": "~3.8.3"
+    "typescript": "~3.8.3",
+    "@types/bcryptjs": "2.4.2"
   }
 }

@@ -81,9 +81,8 @@ export class ProductController {
     },
   })
   async find(
-    @param.filter(Product) filter?: Filter<Product>,
   ): Promise<Product[]> {
-    return this.productRepository.find(filter);
+    return this.productRepository.find();
   }
 
   @patch('/products', {
