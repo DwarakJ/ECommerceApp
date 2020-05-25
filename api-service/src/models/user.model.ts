@@ -72,8 +72,20 @@ export class User extends Entity {
   })
   roles?: string[];
 
-  @hasOne(() => UserCredentials)
-  userCredentials: UserCredentials;
+  @property({
+    type: 'string',
+    required: true,
+  })
+  password: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  userId: string;
+
+//  @hasOne(() => UserCredentials, {keyTo: 'userId'})
+//   userCredentials: UserCredentials;
 
   constructor(data?: Partial<User>) {
     super(data);

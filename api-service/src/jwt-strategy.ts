@@ -1,12 +1,28 @@
-import {inject} from '@loopback/context';
-import {HttpErrors, Request} from '@loopback/rest';
-import {AuthenticationStrategy, TokenService} from '@loopback/authentication';
-import {UserProfile} from '@loopback/security';
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
+// Node module: loopback4-example-shopping
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
 
+import {
+  asAuthStrategy,
+  AuthenticationStrategy,
+  TokenService,
+} from '@loopback/authentication';
+import {bind, inject} from '@loopback/context';
+import {
+  asSpecEnhancer,
+  mergeSecuritySchemeToSpec,
+  OASEnhancer,
+  OpenApiSpec,
+} from '@loopback/openapi-v3';
+import {HttpErrors, Request} from '@loopback/rest';
+import {UserProfile} from '@loopback/security';
 import {TokenServiceBindings} from './keys';
 
-export class JWTAuthenticationStrategy implements AuthenticationStrategy {
-  name: string = 'jwt';
+@bind(asAuthStrategy, asSpecEnhancer)
+export class JWTAuthenticationStrategy
+  implements AuthenticationStrategy, OASEnhancer {
+  name = 'jwt';
 
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)
@@ -24,7 +40,7 @@ export class JWTAuthenticationStrategy implements AuthenticationStrategy {
       throw new HttpErrors.Unauthorized(`Authorization header not found.`);
     }
 
-    // for example: Bearer xxx.yyy.zzz
+    // for example : Bearer xxx.yyy.zzz
     const authHeaderValue = request.headers.authorization;
 
     if (!authHeaderValue.startsWith('Bearer')) {
@@ -33,7 +49,7 @@ export class JWTAuthenticationStrategy implements AuthenticationStrategy {
       );
     }
 
-    //split the string into 2 parts: 'Bearer ' and the `xxx.yyy.zzz`
+    //split the string into 2 parts : 'Bearer ' and the `xxx.yyy.zzz`
     const parts = authHeaderValue.split(' ');
     if (parts.length !== 2)
       throw new HttpErrors.Unauthorized(
@@ -42,5 +58,13 @@ export class JWTAuthenticationStrategy implements AuthenticationStrategy {
     const token = parts[1];
 
     return token;
+  }
+
+  modifySpec(spec: OpenApiSpec): OpenApiSpec {
+    return mergeSecuritySchemeToSpec(spec, this.name, {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    });
   }
 }

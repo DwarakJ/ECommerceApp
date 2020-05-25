@@ -24,7 +24,7 @@ import {
 import {JWTService} from './services/jwt-service';
 import {BcryptHasher} from './services/hash.password.bcryptjs';
 import {MyUserService} from './services/user-service';
-import {SECURITY_SCHEME_SPEC, SECURITY_SPEC} from './utils/security-spec';
+import {SECURITY_SCHEME_SPEC,SECURITY_SPEC} from './utils/security-spec';
 
 /**
  * Information from package.json
@@ -44,8 +44,7 @@ export class WatersenseApplication extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
-    // Set up the custom sequence
-    this.sequence(MyAuthenticationSequence);
+    this.setUpBindings();
 
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
@@ -60,6 +59,9 @@ export class WatersenseApplication extends BootMixin(
 
     this.add(createBindingFromClass(JWTAuthenticationStrategy));
 
+    // Set up the custom sequence
+    this.sequence(MyAuthenticationSequence);
+
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {
@@ -71,9 +73,7 @@ export class WatersenseApplication extends BootMixin(
       },
     };
 
-    this.setUpBindings();
-
-    this.api({
+      this.api({
       openapi: '3.0.0',
       info: {title: pkg.name, version: pkg.version},
       paths: {},
@@ -104,5 +104,12 @@ export class WatersenseApplication extends BootMixin(
     this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
 
     this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+  }
+
+  async start() {
+    // Use `databaseSeeding` flag to control if products/users should be pre
+    // populated into the database. Its value is default to `true`.
+
+    return super.start();
   }
 }

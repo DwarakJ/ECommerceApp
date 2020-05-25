@@ -1,4 +1,5 @@
 import {Entity, model, property} from '@loopback/repository';
+import { User } from './user.model';
 
 @model()
 export class UserCredentials extends Entity {
@@ -27,7 +28,7 @@ export class UserCredentials extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<UserCredentials>, isLocked?: boolean) {
+  constructor(data?: Partial<UserCredentials>) {
     super(data);
   }
 }
