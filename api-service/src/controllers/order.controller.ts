@@ -20,6 +20,8 @@ import {
 } from '@loopback/rest';
 import {Order} from '../models';
 import {OrderRepository} from '../repositories';
+import {SECURITY_SPEC} from '../utils/security-spec';
+import {authenticate} from '@loopback/authentication';
 
 export class OrderController {
   constructor(
@@ -28,6 +30,7 @@ export class OrderController {
   ) {}
 
   @post('/orders', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Order model instance',
@@ -35,6 +38,7 @@ export class OrderController {
       },
     },
   })
+  @authenticate('jwt')
   async create(
     @requestBody({
       content: {
@@ -52,6 +56,7 @@ export class OrderController {
   }
 
   @get('/orders/count', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Order model count',
@@ -59,6 +64,7 @@ export class OrderController {
       },
     },
   })
+  @authenticate('jwt')
   async count(
     @param.where(Order) where?: Where<Order>,
   ): Promise<Count> {
@@ -66,6 +72,7 @@ export class OrderController {
   }
 
   @get('/orders', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Array of Order model instances',
@@ -80,6 +87,7 @@ export class OrderController {
       },
     },
   })
+  @authenticate('jwt')
   async find(
     @param.filter(Order) filter?: Filter<Order>,
   ): Promise<Order[]> {
@@ -87,6 +95,7 @@ export class OrderController {
   }
 
   @patch('/orders', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Order PATCH success count',
@@ -94,6 +103,7 @@ export class OrderController {
       },
     },
   })
+  @authenticate('jwt')
   async updateAll(
     @requestBody({
       content: {
@@ -109,6 +119,7 @@ export class OrderController {
   }
 
   @get('/orders/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Order model instance',
@@ -120,6 +131,7 @@ export class OrderController {
       },
     },
   })
+  @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Order, {exclude: 'where'}) filter?: FilterExcludingWhere<Order>
@@ -128,12 +140,14 @@ export class OrderController {
   }
 
   @patch('/orders/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Order PATCH success',
       },
     },
   })
+  @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
     @requestBody({
@@ -149,12 +163,14 @@ export class OrderController {
   }
 
   @put('/orders/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Order PUT success',
       },
     },
   })
+  @authenticate('jwt')
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() order: Order,
@@ -163,12 +179,14 @@ export class OrderController {
   }
 
   @del('/orders/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Order DELETE success',
       },
     },
   })
+  @authenticate('jwt')
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.orderRepository.deleteById(id);
   }

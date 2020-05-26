@@ -45,7 +45,6 @@ import {
   UserProfileSchema,
 } from './specs/user-controller.specs';
 import {SECURITY_SPEC} from '../utils/security-spec';
-import {JWTAuthenticationStrategy} from '../jwt-strategy'
 
 
 @model()
@@ -101,23 +100,10 @@ export class UserProfileController {
         );
     
         newUserRequest.password = password
-        console.log("Hash password "+password)
         try {
           // create the new user
           const savedUser = await this.userRepository.create(newUserRequest,
-            //_.omit(newUserRequest, 'password'),
           );
-          
-          console.log(newUserRequest.password)
-          // set the password
-/*           const usercred : UserCredentials = {userId:savedUser.id, password:password }
-          usercred.userId = savedUser.id
-          usercred.password = password */
-
-/*           await this.userRepository
-            .userCredentials(savedUser.id)
-            .create({password}); */
-    
           return savedUser;
         } catch (error) {
           // MongoError 11000 duplicate key
