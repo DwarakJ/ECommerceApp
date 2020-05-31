@@ -20,6 +20,8 @@ import {
 } from '@loopback/rest';
 import {Vendor} from '../models';
 import {VendorRepository} from '../repositories';
+import {SECURITY_SPEC} from '../utils/security-spec';
+import {authenticate} from '@loopback/authentication';
 
 export class VendorProfileController {
   constructor(
@@ -35,6 +37,7 @@ export class VendorProfileController {
       },
     },
   })
+
   async create(
     @requestBody({
       content: {
@@ -52,6 +55,7 @@ export class VendorProfileController {
   }
 
   @get('/vendors/count', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Vendor model count',
@@ -59,6 +63,8 @@ export class VendorProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async count(
     @param.where(Vendor) where?: Where<Vendor>,
   ): Promise<Count> {
@@ -66,6 +72,7 @@ export class VendorProfileController {
   }
 
   @get('/vendors', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Array of Vendor model instances',
@@ -80,6 +87,8 @@ export class VendorProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async find(
     @param.filter(Vendor) filter?: Filter<Vendor>,
   ): Promise<Vendor[]> {
@@ -87,6 +96,7 @@ export class VendorProfileController {
   }
 
   @patch('/vendors', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Vendor PATCH success count',
@@ -94,6 +104,8 @@ export class VendorProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async updateAll(
     @requestBody({
       content: {
@@ -109,6 +121,7 @@ export class VendorProfileController {
   }
 
   @get('/vendors/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Vendor model instance',
@@ -120,6 +133,8 @@ export class VendorProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Vendor, {exclude: 'where'}) filter?: FilterExcludingWhere<Vendor>
@@ -128,12 +143,15 @@ export class VendorProfileController {
   }
 
   @patch('/vendors/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Vendor PATCH success',
       },
     },
   })
+
+  @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
     @requestBody({
@@ -149,12 +167,15 @@ export class VendorProfileController {
   }
 
   @put('/vendors/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Vendor PUT success',
       },
     },
   })
+
+  @authenticate('jwt')
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() vendor: Vendor,
@@ -163,12 +184,15 @@ export class VendorProfileController {
   }
 
   @del('/vendors/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Vendor DELETE success',
       },
     },
   })
+
+  @authenticate('jwt')
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.vendorRepository.deleteById(id);
   }

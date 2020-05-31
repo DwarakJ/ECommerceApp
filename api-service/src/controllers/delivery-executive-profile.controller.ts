@@ -20,6 +20,8 @@ import {
 } from '@loopback/rest';
 import {DeliveryExecutive} from '../models';
 import {DeliveryExecutiveRepository} from '../repositories';
+import {SECURITY_SPEC} from '../utils/security-spec';
+import {authenticate} from '@loopback/authentication';
 
 export class DeliveryExecutiveProfileController {
   constructor(
@@ -28,6 +30,7 @@ export class DeliveryExecutiveProfileController {
   ) {}
 
   @post('/delivery-executives', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'DeliveryExecutive model instance',
@@ -35,6 +38,7 @@ export class DeliveryExecutiveProfileController {
       },
     },
   })
+  @authenticate('jwt')
   async create(
     @requestBody({
       content: {
@@ -52,6 +56,7 @@ export class DeliveryExecutiveProfileController {
   }
 
   @get('/delivery-executives/count', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'DeliveryExecutive model count',
@@ -59,6 +64,7 @@ export class DeliveryExecutiveProfileController {
       },
     },
   })
+  @authenticate('jwt')
   async count(
     @param.where(DeliveryExecutive) where?: Where<DeliveryExecutive>,
   ): Promise<Count> {
@@ -66,6 +72,7 @@ export class DeliveryExecutiveProfileController {
   }
 
   @get('/delivery-executives', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Array of DeliveryExecutive model instances',
@@ -80,6 +87,7 @@ export class DeliveryExecutiveProfileController {
       },
     },
   })
+  @authenticate('jwt')
   async find(
     @param.filter(DeliveryExecutive) filter?: Filter<DeliveryExecutive>,
   ): Promise<DeliveryExecutive[]> {
@@ -87,6 +95,7 @@ export class DeliveryExecutiveProfileController {
   }
 
   @patch('/delivery-executives', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'DeliveryExecutive PATCH success count',
@@ -94,6 +103,7 @@ export class DeliveryExecutiveProfileController {
       },
     },
   })
+  @authenticate('jwt')
   async updateAll(
     @requestBody({
       content: {
@@ -109,6 +119,7 @@ export class DeliveryExecutiveProfileController {
   }
 
   @get('/delivery-executives/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'DeliveryExecutive model instance',
@@ -120,6 +131,7 @@ export class DeliveryExecutiveProfileController {
       },
     },
   })
+  @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
     @param.filter(DeliveryExecutive, {exclude: 'where'}) filter?: FilterExcludingWhere<DeliveryExecutive>
@@ -128,12 +140,14 @@ export class DeliveryExecutiveProfileController {
   }
 
   @patch('/delivery-executives/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'DeliveryExecutive PATCH success',
       },
     },
   })
+  @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
     @requestBody({
@@ -149,12 +163,14 @@ export class DeliveryExecutiveProfileController {
   }
 
   @put('/delivery-executives/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'DeliveryExecutive PUT success',
       },
     },
   })
+  @authenticate('jwt')
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() deliveryExecutive: DeliveryExecutive,
@@ -163,12 +179,14 @@ export class DeliveryExecutiveProfileController {
   }
 
   @del('/delivery-executives/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'DeliveryExecutive DELETE success',
       },
     },
   })
+  @authenticate('jwt')
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.deliveryExecutiveRepository.deleteById(id);
   }

@@ -20,6 +20,8 @@ import {
 } from '@loopback/rest';
 import {Product} from '../models';
 import {ProductRepository} from '../repositories';
+import {SECURITY_SPEC} from '../utils/security-spec';
+import {authenticate} from '@loopback/authentication';
 
 export class ProductController {
   constructor(
@@ -28,6 +30,7 @@ export class ProductController {
   ) {}
 
   @post('/products', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Product model instance',
@@ -35,6 +38,8 @@ export class ProductController {
       },
     },
   })
+
+  @authenticate('jwt')
   async create(
     @requestBody({
       content: {
@@ -52,6 +57,7 @@ export class ProductController {
   }
 
   @get('/products/count', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Product model count',
@@ -59,6 +65,8 @@ export class ProductController {
       },
     },
   })
+
+  @authenticate('jwt')
   async count(
     @param.where(Product) where?: Where<Product>,
   ): Promise<Count> {
@@ -66,6 +74,7 @@ export class ProductController {
   }
 
   @get('/products', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Array of Product model instances',
@@ -80,12 +89,15 @@ export class ProductController {
       },
     },
   })
+
+  @authenticate('jwt')
   async find(
   ): Promise<Product[]> {
     return this.productRepository.find();
   }
 
   @patch('/products', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Product PATCH success count',
@@ -93,6 +105,8 @@ export class ProductController {
       },
     },
   })
+
+  @authenticate('jwt')
   async updateAll(
     @requestBody({
       content: {
@@ -108,6 +122,7 @@ export class ProductController {
   }
 
   @get('/products/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Product model instance',
@@ -119,6 +134,8 @@ export class ProductController {
       },
     },
   })
+
+  @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Product, {exclude: 'where'}) filter?: FilterExcludingWhere<Product>
@@ -127,12 +144,15 @@ export class ProductController {
   }
 
   @patch('/products/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Product PATCH success',
       },
     },
   })
+
+  @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
     @requestBody({
@@ -148,12 +168,15 @@ export class ProductController {
   }
 
   @put('/products/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Product PUT success',
       },
     },
   })
+
+  @authenticate('jwt')
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() product: Product,
@@ -162,12 +185,15 @@ export class ProductController {
   }
 
   @del('/products/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'Product DELETE success',
       },
     },
   })
+
+  @authenticate('jwt')
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.productRepository.deleteById(id);
   }

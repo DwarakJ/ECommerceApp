@@ -6,7 +6,8 @@ import {
   repository,
   Where,
   model,
-  property
+  property,
+  AnyType
 } from '@loopback/repository';
 import {
   post,
@@ -21,7 +22,7 @@ import {
   requestBody,
   HttpErrors,
 } from '@loopback/rest';
-import {User, UserCredentials} from '../models';
+import {User} from '../models';
 import {UserRepository} from '../repositories';
 import {
   authenticate,
@@ -43,6 +44,10 @@ import {
   CredentialsRequestBody,
   UserProfileSchema,
 } from './specs/user-controller.specs';
+import {SECURITY_SPEC} from '../utils/security-spec';
+
+
+var currentUser: UserProfile
 
 @model()
 export class NewUserRequest extends User {
@@ -87,7 +92,7 @@ export class UserProfileController {
     newUserRequest: NewUserRequest,
   ): Promise<User> {
         // All new users have the "customer" role by default
-        newUserRequest.roles = ['customer'];
+        newUserRequest.roles = 'customer';
         // ensure a valid email value and password value
         validateCredentials(_.pick(newUserRequest, ['email', 'password']));
     
@@ -96,17 +101,11 @@ export class UserProfileController {
           newUserRequest.password,
         );
     
+        newUserRequest.password = password
         try {
           // create the new user
-          const savedUser = await this.userRepository.create(
-            _.omit(newUserRequest, 'password'),
+          const savedUser = await this.userRepository.create(newUserRequest,
           );
-    
-          // set the password
-          await this.userRepository
-            .userCredentials(savedUser.id)
-            .create({password});
-    
           return savedUser;
         } catch (error) {
           // MongoError 11000 duplicate key
@@ -119,6 +118,7 @@ export class UserProfileController {
   }
 
   @get('/users/count', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'User model count',
@@ -126,6 +126,8 @@ export class UserProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async count(
     @param.where(User) where?: Where<User>,
   ): Promise<Count> {
@@ -133,6 +135,7 @@ export class UserProfileController {
   }
 
   @get('/users', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Array of User model instances',
@@ -147,13 +150,16 @@ export class UserProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async find(
     @param.filter(User) filter?: Filter<User>,
   ): Promise<User[]> {
-    return this.userRepository.find(filter);
+    return this.userRepository.find();
   }
 
   @patch('/users', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'User PATCH success count',
@@ -161,6 +167,7 @@ export class UserProfileController {
       },
     },
   })
+  @authenticate('jwt')
   async updateAll(
     @requestBody({
       content: {
@@ -176,6 +183,7 @@ export class UserProfileController {
   }
 
   @get('/users/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'User model instance',
@@ -187,6 +195,8 @@ export class UserProfileController {
       },
     },
   })
+
+  @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
     @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>
@@ -195,12 +205,15 @@ export class UserProfileController {
   }
 
   @patch('/users/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'User PATCH success',
       },
     },
   })
+
+  @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
     @requestBody({
@@ -216,12 +229,15 @@ export class UserProfileController {
   }
 
   @put('/users/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'User PUT success',
       },
     },
   })
+
+  @authenticate('jwt')
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() user: User,
@@ -230,17 +246,21 @@ export class UserProfileController {
   }
 
   @del('/users/{id}', {
+    security: SECURITY_SPEC,
     responses: {
       '204': {
         description: 'User DELETE success',
       },
     },
   })
+
+  @authenticate('jwt')
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
   }
 
   @get('/users/me', {
+    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'The current user profile',
@@ -259,7 +279,13 @@ export class UserProfileController {
   ): Promise<UserProfile> {
     currentUserProfile.id = currentUserProfile[securityId];
     delete currentUserProfile[securityId];
+    currentUser = currentUserProfile
     return currentUserProfile;
+  }
+
+  getCurrentUser()
+  {
+    return currentUser;
   }
 
   @post('/users/login', {
@@ -281,6 +307,7 @@ export class UserProfileController {
       },
     },
   })
+
   async login(
     @requestBody(CredentialsRequestBody) credentials: Credentials,
   ): Promise<{token: string}> {

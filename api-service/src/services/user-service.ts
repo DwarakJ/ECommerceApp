@@ -5,24 +5,28 @@
 
 import {HttpErrors} from '@loopback/rest';
 import {Credentials, UserRepository} from '../repositories/user.repository';
+import {UserCredentialsRepository} from '../repositories/user-credentials.repository'
 import {User} from '../models/user.model';
 import {UserService} from '@loopback/authentication';
 import {UserProfile, securityId} from '@loopback/security';
-import {repository} from '@loopback/repository';
+import {repository, FilterBuilder} from '@loopback/repository';
 import {PasswordHasher} from './hash.password.bcryptjs';
 import {PasswordHasherBindings} from '../keys';
 import {inject} from '@loopback/context';
-import { UserCredentials } from '../models';
+import { UserCredentials } from '../models/user-credentials.model';
 
 export class MyUserService implements UserService<User, Credentials> {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
+    @repository(UserCredentialsRepository) public userCredentialRepository : UserCredentialsRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public passwordHasher: PasswordHasher,
   ) {}
 
   async verifyCredentials(credentials: Credentials): Promise<User> {
     const invalidCredentialsError = 'Invalid email or password.';
+
+    const invalidUserError = 'User found, cred not found';
 
     const foundUser = await this.userRepository.findOne({
       where: {email: credentials.email},
@@ -31,20 +35,30 @@ export class MyUserService implements UserService<User, Credentials> {
       throw new HttpErrors.Unauthorized(invalidCredentialsError);
     }
 
-    const credentialsFound = await this.userRepository.findCredentials(
-      foundUser.id,
-    );
+    //console.log(f)
+    var filter = new FilterBuilder<UserCredentials>().fields('userId').where({userId:foundUser.id}).build();
+    
+    var credentialsFound = foundUser.password
+    //.find({where: {"userId": foundUser.id},});
+
+    //console.log(filter)
+    //console.log("User password "+credentials.password)
+    //console.log("DB Password "+credentialsFound)
+    //await this.userRepository.findCredentials(
+    //  foundUser.id,
+    //);
     if (!credentialsFound) {
-      throw new HttpErrors.Unauthorized(invalidCredentialsError);
+      throw new HttpErrors.Unauthorized("User: "+foundUser.id+", "+invalidUserError);
     }
 
     const passwordMatched = await this.passwordHasher.comparePassword(
       credentials.password,
-      credentialsFound.password,
+      credentialsFound,
     );
 
+    const passworderror = "Password Did not match"
     if (!passwordMatched) {
-      throw new HttpErrors.Unauthorized(invalidCredentialsError);
+      throw new HttpErrors.Unauthorized(passworderror);
     }
 
     return foundUser;

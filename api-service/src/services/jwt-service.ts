@@ -13,6 +13,7 @@ import {TokenServiceBindings} from '../keys';
 const jwt = require('jsonwebtoken');
 const signAsync = promisify(jwt.sign);
 const verifyAsync = promisify(jwt.verify);
+export var userId : string
 
 export class JWTService implements TokenService {
   constructor(
@@ -63,6 +64,9 @@ export class JWTService implements TokenService {
       name: userProfile.name,
       roles: userProfile.roles,
     };
+
+    // Global UserID
+    userId = userProfile[securityId]
     // Generate a JSON Web Token
     let token: string;
     try {
