@@ -30,7 +30,6 @@ export class VendorProfileController {
   ) {}
 
   @post('/vendors', {
-    security: SECURITY_SPEC,
     responses: {
       '200': {
         description: 'Vendor model instance',
@@ -39,7 +38,6 @@ export class VendorProfileController {
     },
   })
 
-  @authenticate('jwt')
   async create(
     @requestBody({
       content: {

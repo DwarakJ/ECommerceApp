@@ -47,6 +47,8 @@ import {
 import {SECURITY_SPEC} from '../utils/security-spec';
 
 
+var currentUser: UserProfile
+
 @model()
 export class NewUserRequest extends User {
   @property({
@@ -90,7 +92,7 @@ export class UserProfileController {
     newUserRequest: NewUserRequest,
   ): Promise<User> {
         // All new users have the "customer" role by default
-        newUserRequest.roles = ['customer'];
+        newUserRequest.roles = 'customer';
         // ensure a valid email value and password value
         validateCredentials(_.pick(newUserRequest, ['email', 'password']));
     
@@ -277,7 +279,13 @@ export class UserProfileController {
   ): Promise<UserProfile> {
     currentUserProfile.id = currentUserProfile[securityId];
     delete currentUserProfile[securityId];
+    currentUser = currentUserProfile
     return currentUserProfile;
+  }
+
+  getCurrentUser()
+  {
+    return currentUser;
   }
 
   @post('/users/login', {

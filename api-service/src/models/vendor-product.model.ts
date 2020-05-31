@@ -13,16 +13,15 @@ export class VendorProduct extends Entity {
     type: 'string',
     required: true,
   })
-  vendor_id: string;
+  name: string;
 
   @property({
     type: 'string',
   })
-  product_id?: string;
+  vendor_id: string;
 
   @property({
     type: 'string',
-    required: true,
   })
   stock_quantity: string;
 
@@ -37,6 +36,12 @@ export class VendorProduct extends Entity {
     required: true,
   })
   price: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  display_picture: string;
 
   constructor(data?: Partial<VendorProduct>) {
     super(data);

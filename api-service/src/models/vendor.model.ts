@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
+import { User } from './user.model';
 
 @model()
 export class Vendor extends Entity {
@@ -9,34 +10,14 @@ export class Vendor extends Entity {
   })
   id?: string;
 
-  @property({
-    type: 'date',
-    required: false,
-  })
-  date_registered: string;
+  @belongsTo(() => User)
+  vendorId: string
 
   @property({
     type: 'date',
     required: false,
   })
-  contract_expiry_date: string;
-
-  @property({
-    type: 'string',
-    required: false,
-  })
-  display_picture: string;
-
-  @property({
-    type: 'string',
-  })
-  fname?: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  lname: string;
+  contract_expiry_date?: string;
 
   @property({
     type: 'string',
@@ -47,24 +28,7 @@ export class Vendor extends Entity {
   @property({
     type: 'string',
   })
-  address?: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  mobile: string;
-
-  @property({
-    type: 'string',
-  })
   license_number?: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  email: string;
 
   constructor(data?: Partial<Vendor>) {
     super(data);

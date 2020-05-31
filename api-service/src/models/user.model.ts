@@ -67,10 +67,9 @@ export class User extends Entity {
   pincode?: string;
 
   @property({
-    type: 'array',
-    itemType: 'string',
+    type: 'string',
   })
-  roles?: string[];
+  roles?: string;
 
   @property({
     type: 'string',
