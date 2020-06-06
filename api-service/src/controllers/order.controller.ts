@@ -26,7 +26,7 @@ import {authenticate} from '@loopback/authentication';
 export class OrderController {
   constructor(
     @repository(OrderRepository)
-    public orderRepository : OrderRepository,
+    public orderRepository: OrderRepository,
   ) {}
 
   @post('/orders', {
@@ -45,7 +45,6 @@ export class OrderController {
         'application/json': {
           schema: getModelSchemaRef(Order, {
             title: 'NewOrder',
-            
           }),
         },
       },
@@ -53,22 +52,6 @@ export class OrderController {
     order: Order,
   ): Promise<Order> {
     return this.orderRepository.create(order);
-  }
-
-  @get('/orders/count', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'Order model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  @authenticate('jwt')
-  async count(
-    @param.where(Order) where?: Where<Order>,
-  ): Promise<Count> {
-    return this.orderRepository.count(where);
   }
 
   @get('/orders', {
@@ -88,34 +71,8 @@ export class OrderController {
     },
   })
   @authenticate('jwt')
-  async find(
-    @param.filter(Order) filter?: Filter<Order>,
-  ): Promise<Order[]> {
+  async find(@param.filter(Order) filter?: Filter<Order>): Promise<Order[]> {
     return this.orderRepository.find(filter);
-  }
-
-  @patch('/orders', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'Order PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  @authenticate('jwt')
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Order, {partial: true}),
-        },
-      },
-    })
-    order: Order,
-    @param.where(Order) where?: Where<Order>,
-  ): Promise<Count> {
-    return this.orderRepository.updateAll(order, where);
   }
 
   @get('/orders/{id}', {
@@ -134,7 +91,8 @@ export class OrderController {
   @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Order, {exclude: 'where'}) filter?: FilterExcludingWhere<Order>
+    @param.filter(Order, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Order>,
   ): Promise<Order> {
     return this.orderRepository.findById(id, filter);
   }
@@ -176,18 +134,5 @@ export class OrderController {
     @requestBody() order: Order,
   ): Promise<void> {
     await this.orderRepository.replaceById(id, order);
-  }
-
-  @del('/orders/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'Order DELETE success',
-      },
-    },
-  })
-  @authenticate('jwt')
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.orderRepository.deleteById(id);
   }
 }

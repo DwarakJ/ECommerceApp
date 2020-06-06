@@ -1,32 +1,35 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
-  Filter,
   FilterExcludingWhere,
   repository,
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
   get,
-  getFilterSchemaFor,
   getModelSchemaRef,
-  getWhereSchemaFor,
+  param,
   patch,
-  put,
-  del,
+  post,
   requestBody,
 } from '@loopback/rest';
 import {Product} from '../models';
-import {ProductRepository} from '../repositories';
+import {
+  ProductRepository,
+  VendorCustomerBridgeRepository,
+  VendorProductRepository,
+} from '../repositories';
 import {SECURITY_SPEC} from '../utils/security-spec';
-import {authenticate} from '@loopback/authentication';
 
 export class ProductController {
   constructor(
     @repository(ProductRepository)
-    public productRepository : ProductRepository,
+    public productRepository: ProductRepository,
+    @repository(VendorCustomerBridgeRepository)
+    public vendorCustomerRepository: VendorCustomerBridgeRepository,
+    @repository(VendorProductRepository)
+    public vendorProductRepository: VendorProductRepository,
   ) {}
 
   @post('/products', {
@@ -34,11 +37,12 @@ export class ProductController {
     responses: {
       '200': {
         description: 'Product model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Product)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(Product)},
+        },
       },
     },
   })
-
   @authenticate('jwt')
   async create(
     @requestBody({
@@ -46,7 +50,6 @@ export class ProductController {
         'application/json': {
           schema: getModelSchemaRef(Product, {
             title: 'NewProduct',
-            
           }),
         },
       },
@@ -56,44 +59,42 @@ export class ProductController {
     return this.productRepository.create(product);
   }
 
-  @get('/products/count', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'Product model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
+  //@authenticate('jwt')
+  @get('/products')
+  async find() { // currentUserProfile: UserProfile, // @inject(SecurityBindings.USER)
+    //return this.productRepository.find();
 
-  @authenticate('jwt')
-  async count(
-    @param.where(Product) where?: Where<Product>,
-  ): Promise<Count> {
-    return this.productRepository.count(where);
-  }
+    // this.vendorCustomerRepository
+    //   .findById(currentUserProfile[securityId])
+    //   .then(res => {
+    //     res.vendors.filter(vendor => {});
+    //   });
 
-  @get('/products', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'Array of Product model instances',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'array',
-              items: getModelSchemaRef(Product, {includeRelations: true}),
+    //   vendorCustomerRepository;
+    //   {
+    //     this.vendorProductRepository
+    //     {
+
+    //     }
+    //   }
+
+    return {
+      status: true,
+      result: [
+        {
+          vendor_Id: 23243423,
+          vendor_name: 'Abc',
+          products: [
+            {
+              id: '5ecaadbaf5bc06c83c01955b',
+              name: 'Normal water',
+              display_picture: 'string',
+              price: 100.0,
             },
-          },
+          ],
         },
-      },
-    },
-  })
-
-  @authenticate('jwt')
-  async find(
-  ): Promise<Product[]> {
-    return this.productRepository.find();
+      ],
+    };
   }
 
   @patch('/products', {
@@ -105,8 +106,7 @@ export class ProductController {
       },
     },
   })
-
-  @authenticate('jwt')
+  //@authenticate('jwt')
   async updateAll(
     @requestBody({
       content: {
@@ -134,67 +134,12 @@ export class ProductController {
       },
     },
   })
-
   @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Product, {exclude: 'where'}) filter?: FilterExcludingWhere<Product>
+    @param.filter(Product, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Product>,
   ): Promise<Product> {
     return this.productRepository.findById(id, filter);
-  }
-
-  @patch('/products/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'Product PATCH success',
-      },
-    },
-  })
-
-  @authenticate('jwt')
-  async updateById(
-    @param.path.string('id') id: string,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Product, {partial: true}),
-        },
-      },
-    })
-    product: Product,
-  ): Promise<void> {
-    await this.productRepository.updateById(id, product);
-  }
-
-  @put('/products/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'Product PUT success',
-      },
-    },
-  })
-
-  @authenticate('jwt')
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() product: Product,
-  ): Promise<void> {
-    await this.productRepository.replaceById(id, product);
-  }
-
-  @del('/products/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'Product DELETE success',
-      },
-    },
-  })
-
-  @authenticate('jwt')
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.productRepository.deleteById(id);
   }
 }

@@ -51,19 +51,7 @@ export class VendorProductController {
     return this.vendorProductRepository.create(vendorProduct);
   }
 
-  @get('/vendor-products/count', {
-    responses: {
-      '200': {
-        description: 'VendorProduct model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async count(
-    @param.where(VendorProduct) where?: Where<VendorProduct>,
-  ): Promise<Count> {
-    return this.vendorProductRepository.count(where);
-  }
+
 
   @get('/vendor-products', {
     responses: {

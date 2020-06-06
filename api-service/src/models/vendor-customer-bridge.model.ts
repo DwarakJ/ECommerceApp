@@ -1,33 +1,29 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import { Vendor } from './vendor.model';
-import { User } from './user.model';
+import {belongsTo, Entity, model, Model, property} from '@loopback/repository';
+import {User} from './user.model';
+
+@model()
+class Vendors extends Model {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  id: string;
+}
 
 @model()
 export class VendorCustomerBridge extends Entity {
-  @property({
-    type: 'string',
-    required: false,
-  })
-  vendor_id: string;
-
-  @belongsTo(() => Vendor)
-  vendorId: string
+  @property.array(Vendors, {required: true})
+  vendors: Vendors[];
 
   @property({
     type: 'string',
     required: false,
+    id: true,
   })
   customer_id: string;
 
   @belongsTo(() => User)
-  customerId: string
-
-  @property({
-    type: 'string',
-    id: true,
-    generated: true,
-  })
-  id?: string;
+  customerId: string;
 
   constructor(data?: Partial<VendorCustomerBridge>) {
     super(data);

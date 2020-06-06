@@ -1,26 +1,25 @@
 import {
-  Count,
-  CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
-  Where,
   model,
-  property
+  property,
+  repository,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
 } from '@loopback/rest';
-import {VendorCustomerBridge, Vendor, VendorRelations} from '../models';
-import {VendorCustomerBridgeRepository, VendorRepository} from '../repositories';
-import {userId} from '../services/jwt-service'
+import {VendorCustomerBridge} from '../models';
+import {
+  VendorCustomerBridgeRepository,
+  VendorRepository,
+} from '../repositories';
 
 @model()
 export class VendorCode extends VendorCustomerBridge {
@@ -34,7 +33,7 @@ export class VendorCode extends VendorCustomerBridge {
 export class VendorCustomerController {
   constructor(
     @repository(VendorCustomerBridgeRepository)
-    public vendorCustomerBridgeRepository : VendorCustomerBridgeRepository,
+    public vendorCustomerBridgeRepository: VendorCustomerBridgeRepository,
     @repository(VendorRepository)
     public vendorRepository: VendorRepository,
   ) {}
@@ -43,7 +42,9 @@ export class VendorCustomerController {
     responses: {
       '200': {
         description: 'VendorCustomerBridge model instance',
-        content: {'application/json': {schema: getModelSchemaRef(VendorCustomerBridge)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(VendorCustomerBridge)},
+        },
       },
     },
   })
@@ -53,39 +54,26 @@ export class VendorCustomerController {
         'application/json': {
           schema: getModelSchemaRef(VendorCode, {
             title: 'NewVendorCustomerBridge',
-            
           }),
         },
       },
     })
     vendorCode: VendorCode,
   ): Promise<VendorCustomerBridge> {
-    
     // To pick Vendor ID
-    var v: (Vendor & VendorRelations)[] = await this.vendorRepository.find({fields: {id: true}},{ where: {code : vendorCode.code}})
+    var v: any = await this.vendorRepository.findOne(
+      {fields: {id: true}},
+      {where: {code: vendorCode.code}},
+    );
 
-    var vendorid: string = v[0].id!
-    
-    vendorCode.customer_id = userId
-    vendorCode.vendor_id = vendorid
-    
-    delete vendorCode.code
-    
+    // var vendorid: string = v.id!;
+
+    // vendorCode.customer_id = userId;
+    // vendorCode.vendor_id = vendorid;
+
+    // delete vendorCode.code;
+
     return this.vendorCustomerBridgeRepository.create(vendorCode);
-  }
-
-  @get('/vendor-customer-bridges/count', {
-    responses: {
-      '200': {
-        description: 'VendorCustomerBridge model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async count(
-    @param.where(VendorCustomerBridge) where?: Where<VendorCustomerBridge>,
-  ): Promise<Count> {
-    return this.vendorCustomerBridgeRepository.count(where);
   }
 
   @get('/vendor-customer-bridges', {
@@ -96,7 +84,9 @@ export class VendorCustomerController {
           'application/json': {
             schema: {
               type: 'array',
-              items: getModelSchemaRef(VendorCustomerBridge, {includeRelations: true}),
+              items: getModelSchemaRef(VendorCustomerBridge, {
+                includeRelations: true,
+              }),
             },
           },
         },
@@ -109,35 +99,15 @@ export class VendorCustomerController {
     return this.vendorCustomerBridgeRepository.find(filter);
   }
 
-  @patch('/vendor-customer-bridges', {
-    responses: {
-      '200': {
-        description: 'VendorCustomerBridge PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(VendorCustomerBridge, {partial: true}),
-        },
-      },
-    })
-    vendorCustomerBridge: VendorCustomerBridge,
-    @param.where(VendorCustomerBridge) where?: Where<VendorCustomerBridge>,
-  ): Promise<Count> {
-    return this.vendorCustomerBridgeRepository.updateAll(vendorCustomerBridge, where);
-  }
-
   @get('/vendor-customer-bridges/{id}', {
     responses: {
       '200': {
         description: 'VendorCustomerBridge model instance',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(VendorCustomerBridge, {includeRelations: true}),
+            schema: getModelSchemaRef(VendorCustomerBridge, {
+              includeRelations: true,
+            }),
           },
         },
       },
@@ -145,7 +115,8 @@ export class VendorCustomerController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(VendorCustomerBridge, {exclude: 'where'}) filter?: FilterExcludingWhere<VendorCustomerBridge>
+    @param.filter(VendorCustomerBridge, {exclude: 'where'})
+    filter?: FilterExcludingWhere<VendorCustomerBridge>,
   ): Promise<VendorCustomerBridge> {
     return this.vendorCustomerBridgeRepository.findById(id, filter);
   }
@@ -168,7 +139,10 @@ export class VendorCustomerController {
     })
     vendorCustomerBridge: VendorCustomerBridge,
   ): Promise<void> {
-    await this.vendorCustomerBridgeRepository.updateById(id, vendorCustomerBridge);
+    await this.vendorCustomerBridgeRepository.updateById(
+      id,
+      vendorCustomerBridge,
+    );
   }
 
   @put('/vendor-customer-bridges/{id}', {
@@ -182,7 +156,10 @@ export class VendorCustomerController {
     @param.path.string('id') id: string,
     @requestBody() vendorCustomerBridge: VendorCustomerBridge,
   ): Promise<void> {
-    await this.vendorCustomerBridgeRepository.replaceById(id, vendorCustomerBridge);
+    await this.vendorCustomerBridgeRepository.replaceById(
+      id,
+      vendorCustomerBridge,
+    );
   }
 
   @del('/vendor-customer-bridges/{id}', {

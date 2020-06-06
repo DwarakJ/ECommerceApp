@@ -7,7 +7,7 @@ import {
   Where,
   model,
   property,
-  AnyType
+  AnyType,
 } from '@loopback/repository';
 import {
   post,
@@ -23,7 +23,11 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import {User} from '../models';
-import {UserRepository} from '../repositories';
+import {
+  UserRepository,
+  VendorRepository,
+  DeliveryExecutiveRepository,
+} from '../repositories';
 import {
   authenticate,
   TokenService,
@@ -37,17 +41,9 @@ import {
   UserServiceBindings,
 } from '../keys';
 import {PasswordHasher} from '../services/hash.password.bcryptjs';
-import {validateCredentials} from '../services/validator';
-import {Credentials} from '../repositories/user.repository';
 import _ from 'lodash';
-import {
-  CredentialsRequestBody,
-  UserProfileSchema,
-} from './specs/user-controller.specs';
 import {SECURITY_SPEC} from '../utils/security-spec';
-
-
-var currentUser: UserProfile
+import {Credentials} from '../schema/user-profile';
 
 @model()
 export class NewUserRequest extends User {
@@ -61,78 +57,18 @@ export class NewUserRequest extends User {
 export class UserProfileController {
   constructor(
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    public userRepository: UserRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public passwordHasher: PasswordHasher,
     @inject(TokenServiceBindings.TOKEN_SERVICE)
     public jwtService: TokenService,
     @inject(UserServiceBindings.USER_SERVICE)
     public userService: UserService<User, Credentials>,
+    @repository(VendorRepository)
+    public vendorRepository: VendorRepository,
+    @repository(DeliveryExecutiveRepository)
+    public deliveryExecutiveRepository: DeliveryExecutiveRepository,
   ) {}
-
-  @post('/users', {
-    responses: {
-      '200': {
-        description: 'User model instance',
-        content: {'application/json': {schema: getModelSchemaRef(User)}},
-      },
-    },
-  })
-  async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(NewUserRequest, {
-            title: 'NewUser',
-            
-          }),
-        },
-      },
-    })
-    newUserRequest: NewUserRequest,
-  ): Promise<User> {
-        // All new users have the "customer" role by default
-        newUserRequest.roles = 'customer';
-        // ensure a valid email value and password value
-        validateCredentials(_.pick(newUserRequest, ['email', 'password']));
-    
-        // encrypt the password
-        const password = await this.passwordHasher.hashPassword(
-          newUserRequest.password,
-        );
-    
-        newUserRequest.password = password
-        try {
-          // create the new user
-          const savedUser = await this.userRepository.create(newUserRequest,
-          );
-          return savedUser;
-        } catch (error) {
-          // MongoError 11000 duplicate key
-          if (error.code === 11000 && error.errmsg.includes('index: uniqueEmail')) {
-            throw new HttpErrors.Conflict('Email value is already taken');
-          } else {
-            throw error;
-          }
-        }
-  }
-
-  @get('/users/count', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'User model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-
-  @authenticate('jwt')
-  async count(
-    @param.where(User) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.count(where);
-  }
 
   @get('/users', {
     security: SECURITY_SPEC,
@@ -150,11 +86,8 @@ export class UserProfileController {
       },
     },
   })
-
   @authenticate('jwt')
-  async find(
-    @param.filter(User) filter?: Filter<User>,
-  ): Promise<User[]> {
+  async find(@param.filter(User) filter?: Filter<User>): Promise<User[]> {
     return this.userRepository.find();
   }
 
@@ -195,11 +128,11 @@ export class UserProfileController {
       },
     },
   })
-
   @authenticate('jwt')
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>
+    @param.filter(User, {exclude: 'where'})
+    filter?: FilterExcludingWhere<User>,
   ): Promise<User> {
     return this.userRepository.findById(id, filter);
   }
@@ -212,7 +145,6 @@ export class UserProfileController {
       },
     },
   })
-
   @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
@@ -236,7 +168,6 @@ export class UserProfileController {
       },
     },
   })
-
   @authenticate('jwt')
   async replaceById(
     @param.path.string('id') id: string,
@@ -253,7 +184,6 @@ export class UserProfileController {
       },
     },
   })
-
   @authenticate('jwt')
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
@@ -277,49 +207,6 @@ export class UserProfileController {
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<UserProfile> {
-    currentUserProfile.id = currentUserProfile[securityId];
-    delete currentUserProfile[securityId];
-    currentUser = currentUserProfile
     return currentUserProfile;
-  }
-
-  getCurrentUser()
-  {
-    return currentUser;
-  }
-
-  @post('/users/login', {
-    responses: {
-      '200': {
-        description: 'Token',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                token: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-
-  async login(
-    @requestBody(CredentialsRequestBody) credentials: Credentials,
-  ): Promise<{token: string}> {
-    // ensure the user exists, and the password is correct
-    const user = await this.userService.verifyCredentials(credentials);
-
-    // convert a User object into a UserProfile object (reduced set of properties)
-    const userProfile = this.userService.convertToUserProfile(user);
-
-    // create a JSON Web Token based on the user profile
-    const token = await this.jwtService.generateToken(userProfile);
-
-    return {token};
   }
 }
