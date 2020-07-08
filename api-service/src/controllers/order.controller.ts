@@ -5,6 +5,9 @@ import {
   FilterExcludingWhere,
   repository,
   Where,
+  model,
+  property,
+  FilterBuilder
 } from '@loopback/repository';
 import {
   post,
@@ -22,11 +25,40 @@ import {Order} from '../models';
 import {OrderRepository} from '../repositories';
 import {SECURITY_SPEC} from '../utils/security-spec';
 import {authenticate} from '@loopback/authentication';
+import {
+  VendorCustomerBridgeRepository,
+  VendorRepository,
+  VendorProductRepository
+} from '../repositories';
+import { userId } from '../services/jwt-service';
+import {orderstatus, paymentmode, paymentstatus} from '../static';
+import { filter } from 'minimatch';
+
+@model()
+export class Orders {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  VendorProductId: string;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  quantity: number;
+}
 
 export class OrderController {
   constructor(
     @repository(OrderRepository)
     public orderRepository: OrderRepository,
+    @repository(VendorCustomerBridgeRepository)
+    public vendorCustomerBridgeRepository: VendorCustomerBridgeRepository,
+    @repository(VendorRepository)
+    public vendorRepository: VendorRepository,
+    @repository(VendorProductRepository)
+    public vendorProductRepository: VendorProductRepository,
   ) {}
 
   @post('/orders', {
@@ -43,15 +75,29 @@ export class OrderController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Order, {
+          schema: getModelSchemaRef(Orders, {
             title: 'NewOrder',
           }),
         },
       },
     })
-    order: Order,
-  ): Promise<Order> {
-    return this.orderRepository.create(order);
+    orders: Orders,
+  ): Promise<Order> 
+  {
+    // To pick Vendor ID
+    var v: any = await this.vendorProductRepository.findOne(
+      {where: {id: orders.VendorProductId}},
+    );
+    
+    var cart = new Order
+    cart.quantity = orders.quantity
+    cart.vendor_product_id = orders.VendorProductId
+    cart.vendor_id = v.vendor_id
+    cart.user_id = userId
+    cart.created_time = Date.now().toString()
+    cart.order_status = orderstatus.Scheduled
+
+    return this.orderRepository.create(cart);
   }
 
   @get('/orders', {
@@ -71,7 +117,12 @@ export class OrderController {
     },
   })
   @authenticate('jwt')
-  async find(@param.filter(Order) filter?: Filter<Order>): Promise<Order[]> {
+  async find(): Promise<Order[]> {
+
+    var filter = new FilterBuilder<Order>()
+    .where({user_id: userId})
+    .build();
+
     return this.orderRepository.find(filter);
   }
 

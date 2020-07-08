@@ -15,14 +15,15 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
-import {VendorCustomerBridge} from '../models';
+import {VendorCustomerBridge, Vendor} from '../models';
 import {
   VendorCustomerBridgeRepository,
   VendorRepository,
 } from '../repositories';
+import { userId } from '../services/jwt-service';
 
 @model()
-export class VendorCode extends VendorCustomerBridge {
+export class VendorCode {
   @property({
     type: 'string',
     required: true,
@@ -58,7 +59,7 @@ export class VendorCustomerController {
         },
       },
     })
-    vendorCode: VendorCode,
+    vendorCode: VendorCode
   ): Promise<VendorCustomerBridge> {
     // To pick Vendor ID
     var v: any = await this.vendorRepository.findOne(
@@ -66,14 +67,11 @@ export class VendorCustomerController {
       {where: {code: vendorCode.code}},
     );
 
-    // var vendorid: string = v.id!;
-
-    // vendorCode.customer_id = userId;
-    // vendorCode.vendor_id = vendorid;
-
-    // delete vendorCode.code;
-
-    return this.vendorCustomerBridgeRepository.create(vendorCode);
+    var vend = new VendorCustomerBridge
+    vend.customer_id = userId
+    vend.vendor_id = v.id
+    
+    return this.vendorCustomerBridgeRepository.create(vend);
   }
 
   @get('/vendor-customer-bridges', {
@@ -94,9 +92,8 @@ export class VendorCustomerController {
     },
   })
   async find(
-    @param.filter(VendorCustomerBridge) filter?: Filter<VendorCustomerBridge>,
   ): Promise<VendorCustomerBridge[]> {
-    return this.vendorCustomerBridgeRepository.find(filter);
+    return this.vendorCustomerBridgeRepository.find();
   }
 
   @get('/vendor-customer-bridges/{id}', {

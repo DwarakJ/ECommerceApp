@@ -1,20 +1,23 @@
 import {Entity, model, property} from '@loopback/repository';
 
+enum orderstatus {
+  Scheduled = "1",
+  Accepted = "2",
+  Delivered = "3",
+  Rejected = "0"
+}
+
 @model()
 export class DeliveryStatus extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-    generated: false,
-    required: true,
-  })
-  id: number;
 
   @property({
     type: 'string',
     required: true,
+    jsonSchema: {
+      enum: Object.values(orderstatus),
+    },
   })
-  status: string;
+  status: orderstatus;
 
   constructor(data?: Partial<DeliveryStatus>) {
     super(data);

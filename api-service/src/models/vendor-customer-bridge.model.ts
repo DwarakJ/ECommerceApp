@@ -1,19 +1,18 @@
 import {belongsTo, Entity, model, Model, property} from '@loopback/repository';
 import {User} from './user.model';
+import {Vendor} from './vendor.model';
+
 
 @model()
-class Vendors extends Model {
+export class VendorCustomerBridge extends Entity {
   @property({
     type: 'string',
     required: true,
   })
-  id: string;
-}
+  vendor_id: string;
 
-@model()
-export class VendorCustomerBridge extends Entity {
-  @property.array(Vendors, {required: true})
-  vendors: Vendors[];
+  @belongsTo(() => Vendor)
+  vendorId: string;
 
   @property({
     type: 'string',

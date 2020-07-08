@@ -1,4 +1,5 @@
 import {Entity, model, property} from '@loopback/repository';
+import {orderstatus, paymentmode, paymentstatus} from '../static';
 
 @model()
 export class Order extends Entity {
@@ -28,7 +29,7 @@ export class Order extends Entity {
   vendor_id: string;
 
   @property({
-    type: 'date',
+    type: 'string',
     required: true,
   })
   created_time: string;
@@ -45,21 +46,21 @@ export class Order extends Entity {
   quantity: number;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  order_status?: number;
+  order_status?: orderstatus;
 
   @property({
-    type: 'boolean',
+    type: 'string',
     required: true,
     default: false,
   })
-  payment_status: boolean;
+  payment_status: paymentstatus;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  payment_mode?: number;
+  payment_mode?: paymentmode;
 
   constructor(data?: Partial<Order>) {
     super(data);
