@@ -12,6 +12,7 @@ export class OTPService {
         })
         .catch((err: any) => {
           console.log(err);
+          reject();
         });
     });
   }

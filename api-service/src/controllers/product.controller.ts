@@ -61,7 +61,8 @@ export class ProductController {
 
   //@authenticate('jwt')
   @get('/products')
-  async find() { // currentUserProfile: UserProfile, // @inject(SecurityBindings.USER)
+  async find() {
+    // currentUserProfile: UserProfile, // @inject(SecurityBindings.USER)
     //return this.productRepository.find();
 
     // this.vendorCustomerRepository
@@ -89,7 +90,19 @@ export class ProductController {
               id: '5ecaadbaf5bc06c83c01955b',
               name: 'Normal water',
               display_picture: 'string',
-              price: 100.0,
+              price: 30.0,
+            },
+          ],
+        },
+        {
+          vendor_Id: 23243423,
+          vendor_name: 'Abc',
+          products: [
+            {
+              id: '5ecaadbaf4bc06c83c01955b',
+              name: 'Bisleri water',
+              display_picture: 'string',
+              price: 80.0,
             },
           ],
         },

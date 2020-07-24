@@ -22,34 +22,6 @@ const CredentialsSchema = {
   },
 };
 
-const OTPCredentialsSchema = {
-  type: 'object',
-  required: ['otp', 'sessionid'],
-  properties: {
-    otp: {
-      type: 'string',
-    },
-    sessionid: {
-      type: 'string',
-    },
-    first_name: {
-      type: 'string',
-    },
-    last_name: {
-      type: 'string',
-    },
-    address: {
-      type: 'string',
-    },
-    email: {
-      type: 'string',
-    },
-    phone: {
-      type: 'string',
-    },
-  },
-};
-
 export const UserRegistrationSchema = {
   type: 'object',
   required: ['first_name', 'last_name', 'email', 'address'],
@@ -69,6 +41,22 @@ export const UserRegistrationSchema = {
   },
 };
 
+const OTPVerificationSchema = {
+  type: 'object',
+  required: ['otp', 'sessionid'],
+  properties: {
+    otp: {
+      type: 'string',
+    },
+    sessionid: {
+      type: 'string',
+    },
+    phone: {
+      type: 'string',
+    },
+  },
+};
+
 export const CredentialsRequestBody = {
   description: 'The input of login function',
   required: true,
@@ -77,10 +65,18 @@ export const CredentialsRequestBody = {
   },
 };
 
-export const OTPCredentialsRequestBody = {
+export const UserRegistrationRequestBody = {
   description: 'The input of login function',
   required: true,
   content: {
-    'application/json': {schema: OTPCredentialsSchema},
+    'application/json': {schema: UserRegistrationSchema},
+  },
+};
+
+export const OTPVerificationRequestBody = {
+  description: 'The input of login function',
+  required: true,
+  content: {
+    'application/json': {schema: OTPVerificationSchema},
   },
 };

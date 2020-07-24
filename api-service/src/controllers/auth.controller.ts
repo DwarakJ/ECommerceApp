@@ -10,7 +10,8 @@ import {UserRepository} from '../repositories';
 import {
   Credentials,
   CredentialsRequestBody,
-  OTPCredentialsRequestBody,
+  OTPVerificationRequestBody,
+  UserRegistrationRequestBody,
 } from '../schema/user-profile';
 import {OTPService} from '../services/otp-service';
 
@@ -24,14 +25,95 @@ export class AuthController {
     public userRepository: UserRepository,
   ) {}
 
-  @post('/users/login')
-  async login(
-    @requestBody(OTPCredentialsRequestBody) request: any,
+  @post('/users/register')
+  async registerUser(
+    @requestBody(UserRegistrationRequestBody) request: any,
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      var filter = new FilterBuilder<User>()
+        .where({phone: request.phone})
+        .build();
+      this.userRepository
+        .findOne(filter)
+        .then(async (res: any) => {
+          if (res) {
+            let user = await this.userService.verifyCredentials(res.phone);
+            const userProfile = this.userService.convertToUserProfile(user);
+            const token = await this.jwtService.generateToken(userProfile);
+            resolve({
+              status: true,
+              result: {token: token, user: user},
+            });
+          } else {
+            let user: any = {
+              first_name: request.first_name,
+              last_name: request.last_name,
+              address: request.address,
+              phone: request.phone,
+              email: request.email,
+            };
+            await this.userRepository
+              .create(user)
+              .then(async res => {
+                const userProfile = this.userService.convertToUserProfile(res);
+                const token = await this.jwtService.generateToken(userProfile);
+                resolve({
+                  status: true,
+                  result: {token: token, user: res},
+                });
+              })
+              .catch((err: any) => {
+                console.log(err);
+                resolve(err);
+              });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          resolve({
+            status: false,
+            message: 'Registration failed, try again.',
+          });
+        });
+    });
+  }
+
+  @post('/users/sendotp')
+  async verifyPhone(
+    @requestBody(CredentialsRequestBody) request: Credentials,
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       new OTPService()
+        .sendOTP(request.phone)
+        .then((res: any) => {
+          resolve({
+            status: true,
+            result: {sessionid: res.data.Details, phone: request.phone},
+          });
+        })
+        .catch((err: any) => {
+          console.log(err);
+          resolve({
+            status: false,
+            message:
+              'Unable to send OTP at this moment. Please try with a valid mobile number',
+          });
+        });
+    });
+  }
+
+  @post('/users/verify_otp')
+  async verifyOTP(
+    @requestBody(OTPVerificationRequestBody) request: any,
+  ): Promise<any> {
+    var filter = new FilterBuilder<User>()
+      .where({phone: request.phone})
+      .build();
+    const founduser = await this.userRepository.findOne(filter);
+    return new Promise((resolve, reject) => {
+      new OTPService()
         .verifyOTP(request.otp, request.sessionid)
-        .then(async (res: any) => {
+        .then((res: any) => {
           console.log(res.data.Details);
           if (res.data.Details === 'OTP Matched') {
             var filter = new FilterBuilder<User>()
@@ -52,34 +134,16 @@ export class AuthController {
                   );
                   resolve({
                     status: true,
-                    result: {token: token, user: user},
+                    result: {
+                      token: token,
+                      is_registered: true,
+                    },
                   });
                 } else {
-                  let user: any = {
-                    first_name: request.first_name,
-                    last_name: request.last_name,
-                    address: request.address,
-                    phone: request.phone,
-                    email: request.email,
-                  };
-                  await this.userRepository
-                    .create(user)
-                    .then(async res => {
-                      const userProfile = this.userService.convertToUserProfile(
-                        res,
-                      );
-                      const token = await this.jwtService.generateToken(
-                        userProfile,
-                      );
-                      resolve({
-                        status: true,
-                        result: {token: token, user: res},
-                      });
-                    })
-                    .catch((err: any) => {
-                      console.log(err);
-                      resolve(err);
-                    });
+                  resolve({
+                    status: true,
+                    result: {is_registered: false},
+                  });
                 }
               })
               .catch(err => {
@@ -88,53 +152,6 @@ export class AuthController {
           } else {
             resolve(res.data);
           }
-        })
-        .catch(err => {
-          resolve(err);
-        });
-    });
-  }
-
-  @post('/users/verify_device', {
-    responses: {
-      '200': {
-        description: 'Token',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                token: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  async verify(
-    @requestBody(CredentialsRequestBody) request: Credentials,
-  ): Promise<any> {
-    var filter = new FilterBuilder<User>()
-      .where({phone: request.phone})
-      .build();
-    const founduser = await this.userRepository.findOne(filter);
-    return new Promise((resolve, reject) => {
-      new OTPService()
-        .sendOTP(request.phone)
-        .then((res: any) => {
-          resolve({
-            status: true,
-            sessionid: res.data.Details,
-            is_registered: founduser ? true : false,
-            phone: request.phone,
-          });
-        })
-        .catch((err: any) => {
-          console.log(err);
-          resolve({status: false});
         });
     });
   }
