@@ -1,49 +1,42 @@
 import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-  model,
-  property,
-  AnyType,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getFilterSchemaFor,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  patch,
-  put,
-  del,
-  requestBody,
-  HttpErrors,
-} from '@loopback/rest';
-import {User} from '../models';
-import {
-  UserRepository,
-  VendorRepository,
-  DeliveryExecutiveRepository,
-} from '../repositories';
-import {
   authenticate,
   TokenService,
   UserService,
 } from '@loopback/authentication';
-import {UserProfile, securityId, SecurityBindings} from '@loopback/security';
 import {inject} from '@loopback/core';
 import {
-  TokenServiceBindings,
+  Count,
+  CountSchema,
+  Filter,
+  model,
+  property,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  param,
+  patch,
+  put,
+  requestBody,
+} from '@loopback/rest';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {
   PasswordHasherBindings,
+  TokenServiceBindings,
   UserServiceBindings,
 } from '../keys';
-import {PasswordHasher} from '../services/hash.password.bcryptjs';
-import _ from 'lodash';
-import {SECURITY_SPEC} from '../utils/security-spec';
+import {User} from '../models';
+import {
+  DeliveryExecutiveRepository,
+  UserRepository,
+  VendorRepository,
+} from '../repositories';
 import {Credentials} from '../schema/user-profile';
+import {PasswordHasher} from '../services/hash.password.bcryptjs';
+import {SECURITY_SPEC} from '../utils/security-spec';
 
 @model()
 export class NewUserRequest extends User {
@@ -115,26 +108,15 @@ export class UserProfileController {
     return this.userRepository.updateAll(user, where);
   }
 
-  @get('/users/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'User model instance',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(User, {includeRelations: true}),
-          },
-        },
-      },
-    },
-  })
+  @get('/users/{userId}')
   @authenticate('jwt')
   async findById(
-    @param.path.string('id') id: string,
-    @param.filter(User, {exclude: 'where'})
-    filter?: FilterExcludingWhere<User>,
-  ): Promise<User> {
-    return this.userRepository.findById(id, filter);
+    @param.path.string('userId') id: any,
+    @inject(SecurityBindings.USER)
+    currentuser: UserProfile,
+  ) {
+    console.log('currentuser', currentuser);
+    return this.userRepository.findById(currentuser[securityId]);
   }
 
   @patch('/users/{id}', {
@@ -189,24 +171,13 @@ export class UserProfileController {
     await this.userRepository.deleteById(id);
   }
 
-  @get('/users/me', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'The current user profile',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(User, {includeRelations: true}),
-          },
-        },
-      },
-    },
-  })
+  @get('/users/me')
   @authenticate('jwt')
   async printCurrentUser(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
-  ): Promise<UserProfile> {
-    return currentUserProfile;
+  ) {
+    console.log('currentuser', currentUserProfile);
+    return this.userRepository.findById(currentUserProfile[securityId]);
   }
 }

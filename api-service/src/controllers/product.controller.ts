@@ -88,6 +88,7 @@ export class ProductController {
           products: [
             {
               id: '5ecaadbaf5bc06c83c01955b',
+              vendor_product_id: 1,
               name: 'Normal water',
               display_picture: 'string',
               price: 30.0,
@@ -100,6 +101,7 @@ export class ProductController {
           products: [
             {
               id: '5ecaadbaf4bc06c83c01955b',
+              vendor_product_id: 2,
               name: 'Bisleri water',
               display_picture: 'string',
               price: 80.0,

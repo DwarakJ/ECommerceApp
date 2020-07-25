@@ -17,7 +17,6 @@ import {Entity, model, property} from '@loopback/repository';
 export class User extends Entity {
   @property({
     type: 'string',
-    id: true,
   })
   id: string;
 
@@ -74,6 +73,7 @@ export class User extends Entity {
     type: 'string',
     required: true,
     defaultFn: 'guid',
+    id: true,
   })
   userId: string;
 

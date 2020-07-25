@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 import {orderstatus, paymentmode, paymentstatus} from '../static';
 
-@model()
+@model({settings: {strict: false}})
 export class Order extends Entity {
   @property({
     type: 'string',
@@ -12,25 +12,25 @@ export class Order extends Entity {
 
   @property({
     type: 'string',
-    required: true,
+    //required: true,
   })
   vendor_product_id: string;
 
   @property({
     type: 'string',
-    required: true,
+    //required: true,
   })
   user_id: string;
 
   @property({
     type: 'string',
-    required: true,
+    //required: true,
   })
   vendor_id: string;
 
   @property({
     type: 'string',
-    required: true,
+    ////required: true,
   })
   created_time: string;
 
@@ -41,7 +41,7 @@ export class Order extends Entity {
 
   @property({
     type: 'number',
-    required: true,
+    //required: true,
   })
   quantity: number;
 
@@ -52,7 +52,7 @@ export class Order extends Entity {
 
   @property({
     type: 'string',
-    required: true,
+    //required: true,
     default: false,
   })
   payment_status: paymentstatus;
