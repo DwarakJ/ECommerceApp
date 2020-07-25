@@ -4,22 +4,13 @@ import {
   UserService,
 } from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {
-  Count,
-  CountSchema,
-  Filter,
-  model,
-  property,
-  repository,
-  Where,
-} from '@loopback/repository';
+import {Filter, model, property, repository} from '@loopback/repository';
 import {
   del,
   get,
   getModelSchemaRef,
   param,
   patch,
-  put,
   requestBody,
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
@@ -84,30 +75,6 @@ export class UserProfileController {
     return this.userRepository.find();
   }
 
-  @patch('/users', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'User PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  @authenticate('jwt')
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
-        },
-      },
-    })
-    user: User,
-    @param.where(User) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.updateAll(user, where);
-  }
-
   @get('/users/{userId}')
   @authenticate('jwt')
   async findById(
@@ -119,7 +86,7 @@ export class UserProfileController {
     return this.userRepository.findById(currentuser[securityId]);
   }
 
-  @patch('/users/{id}', {
+  @patch('/users', {
     security: SECURITY_SPEC,
     responses: {
       '204': {
@@ -138,24 +105,18 @@ export class UserProfileController {
       },
     })
     user: User,
-  ): Promise<void> {
-    await this.userRepository.updateById(id, user);
-  }
-
-  @put('/users/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'User PUT success',
-      },
-    },
-  })
-  @authenticate('jwt')
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() user: User,
-  ): Promise<void> {
-    await this.userRepository.replaceById(id, user);
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.userRepository
+        .updateById(id, user)
+        .then(res => {
+          resolve({status: true, result: res});
+        })
+        .catch(err => {
+          console.error(err);
+          resolve({status: false});
+        });
+    });
   }
 
   @del('/users/{id}', {
