@@ -86,6 +86,7 @@ export class AuthController {
       new OTPService()
         .sendOTP(request.phone)
         .then((res: any) => {
+          console.log(res);
           resolve({
             status: true,
             result: {sessionid: res.data.Details, phone: request.phone},

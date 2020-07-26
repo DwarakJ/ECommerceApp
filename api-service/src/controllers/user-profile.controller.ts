@@ -95,8 +95,9 @@ export class UserProfileController {
     },
   })
   @authenticate('jwt')
-  async updateById(
-    @param.path.string('id') id: string,
+  async updateUserById(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
     @requestBody({
       content: {
         'application/json': {
@@ -104,12 +105,13 @@ export class UserProfileController {
         },
       },
     })
-    user: User,
+    user: Partial<User>,
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       this.userRepository
-        .updateById(id, user)
+        .updateById(currentUserProfile[securityId], user)
         .then(res => {
+          console.log(res);
           resolve({status: true, result: res});
         })
         .catch(err => {
@@ -134,7 +136,7 @@ export class UserProfileController {
 
   @get('/users/me')
   @authenticate('jwt')
-  async printCurrentUser(
+  async getCurrentUser(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ) {
