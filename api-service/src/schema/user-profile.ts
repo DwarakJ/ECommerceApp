@@ -38,6 +38,9 @@ export const UserRegistrationSchema = {
     email: {
       type: 'string',
     },
+    phone: {
+      type: 'string',
+    },
   },
 };
 

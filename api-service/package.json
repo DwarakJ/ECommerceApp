@@ -12,17 +12,17 @@
   },
   "nodemonConfig": {
     "ignore": [
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    ".git",
-    "node_modules"
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
     ],
     "watch": [
-    "src"
+      "src"
     ],
     "exec": "npm start",
     "ext": "ts"
-    },
+  },
   "scripts": {
     "build": "lb-tsc",
     "build:watch": "lb-tsc --watch",
@@ -42,8 +42,8 @@
     "docker:run": "docker run -p 3000:3000 -d watersense",
     "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
-    "start": "node -r source-map-support/register .",
-    "dev":"nodemon --watch src --ignore 'src/**/*.spec.ts' --exec npm start",
+    "start": "npm run prettier:fix && node -r source-map-support/register .",
+    "dev": "nodemon --watch src --ignore 'src/**/*.spec.ts' --exec npm start",
     "prepublishOnly": "npm run test"
   },
   "repository": {

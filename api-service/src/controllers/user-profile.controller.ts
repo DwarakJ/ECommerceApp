@@ -4,15 +4,8 @@ import {
   UserService,
 } from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {Filter, model, property, repository} from '@loopback/repository';
-import {
-  del,
-  get,
-  getModelSchemaRef,
-  param,
-  patch,
-  requestBody,
-} from '@loopback/rest';
+import {Filter, repository} from '@loopback/repository';
+import {get, getModelSchemaRef, param} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {
   PasswordHasherBindings,
@@ -28,15 +21,6 @@ import {
 import {Credentials} from '../schema/user-profile';
 import {PasswordHasher} from '../services/hash.password.bcryptjs';
 import {SECURITY_SPEC} from '../utils/security-spec';
-
-@model()
-export class NewUserRequest extends User {
-  @property({
-    type: 'string',
-    required: true,
-  })
-  password: string;
-}
 
 export class UserProfileController {
   constructor(
@@ -84,54 +68,6 @@ export class UserProfileController {
   ) {
     console.log('currentuser', currentuser);
     return this.userRepository.findById(currentuser[securityId]);
-  }
-
-  @patch('/users', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'User PATCH success',
-      },
-    },
-  })
-  @authenticate('jwt')
-  async updateUserById(
-    @inject(SecurityBindings.USER)
-    currentUserProfile: UserProfile,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
-        },
-      },
-    })
-    user: Partial<User>,
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.userRepository
-        .updateById(currentUserProfile[securityId], user)
-        .then(res => {
-          console.log(res);
-          resolve({status: true, result: res});
-        })
-        .catch(err => {
-          console.error(err);
-          resolve({status: false});
-        });
-    });
-  }
-
-  @del('/users/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'User DELETE success',
-      },
-    },
-  })
-  @authenticate('jwt')
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.userRepository.deleteById(id);
   }
 
   @get('/users/me')

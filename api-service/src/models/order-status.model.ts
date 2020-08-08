@@ -1,15 +1,14 @@
 import {Entity, model, property} from '@loopback/repository';
 
 enum orderstatus {
-  Scheduled = "1",
-  Accepted = "2",
-  Delivered = "3",
-  Rejected = "0"
+  Scheduled = '1',
+  Accepted = '2',
+  Delivered = '3',
+  Rejected = '0',
 }
 
 @model()
 export class DeliveryStatus extends Entity {
-
   @property({
     type: 'string',
     required: true,

@@ -8,9 +8,7 @@ export class VendorProductRepository extends DefaultCrudRepository<
   typeof VendorProduct.prototype.id,
   VendorProductRelations
 > {
-  constructor(
-    @inject('datasources.mongo') dataSource: MongoDataSource,
-  ) {
+  constructor(@inject('datasources.mongo') dataSource: MongoDataSource) {
     super(VendorProduct, dataSource);
   }
 }

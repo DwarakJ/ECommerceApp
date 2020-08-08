@@ -1,5 +1,5 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
-import { User } from './user.model';
+import {User} from './user.model';
 
 @model()
 export class Vendor extends Entity {
@@ -11,7 +11,7 @@ export class Vendor extends Entity {
   id?: string;
 
   @belongsTo(() => User)
-  vendorId: string
+  vendorId: string;
 
   @property({
     type: 'date',

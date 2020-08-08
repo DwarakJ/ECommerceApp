@@ -1,16 +1,16 @@
 export enum orderstatus {
-    Scheduled,
-    Accepted,
-    Delivered,
-    Rejected
-  }
+  Scheduled,
+  Accepted,
+  Delivered,
+  Rejected,
+}
 
 export enum paymentmode {
-    COD,
-    Card
+  COD,
+  Card,
 }
 
 export enum paymentstatus {
-    Paid,
-    NotPaid
+  Paid,
+  NotPaid,
 }

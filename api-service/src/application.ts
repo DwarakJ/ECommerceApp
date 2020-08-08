@@ -24,7 +24,7 @@ import {
 import {JWTService} from './services/jwt-service';
 import {BcryptHasher} from './services/hash.password.bcryptjs';
 import {MyUserService} from './services/user-service';
-import {SECURITY_SCHEME_SPEC,SECURITY_SPEC} from './utils/security-spec';
+import {SECURITY_SCHEME_SPEC, SECURITY_SPEC} from './utils/security-spec';
 
 /**
  * Information from package.json
@@ -73,16 +73,15 @@ export class WatersenseApplication extends BootMixin(
       },
     };
 
-      this.api({
+    this.api({
       openapi: '3.0.0',
       info: {title: pkg.name, version: pkg.version},
       paths: {},
       components: {securitySchemes: SECURITY_SCHEME_SPEC},
       servers: [{url: '/'}],
-      security: SECURITY_SPEC
+      security: SECURITY_SPEC,
     });
   }
-
 
   setUpBindings(): void {
     // ...
