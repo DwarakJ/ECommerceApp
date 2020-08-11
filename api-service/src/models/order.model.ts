@@ -12,25 +12,17 @@ export class Order extends Entity {
 
   @property({
     type: 'string',
-    //required: true,
-  })
-  vendor_product_id: string;
-
-  @property({
-    type: 'string',
-    //required: true,
   })
   user_id: string;
 
   @property({
-    type: 'string',
-    //required: true,
+    type: 'object',
   })
-  vendor_id: string;
+  products: object;
 
   @property({
-    type: 'string',
-    ////required: true,
+    type: 'date',
+    defaultFn: 'now',
   })
   created_time: string;
 
@@ -40,25 +32,19 @@ export class Order extends Entity {
   delivered_time?: string;
 
   @property({
-    type: 'number',
-    //required: true,
-  })
-  quantity: number;
-
-  @property({
     type: 'string',
   })
   order_status?: orderstatus;
 
   @property({
     type: 'string',
-    //required: true,
     default: false,
   })
   payment_status: paymentstatus;
 
   @property({
     type: 'string',
+    default: 'COD',
   })
   payment_mode?: paymentmode;
 

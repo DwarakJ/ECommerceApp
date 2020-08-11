@@ -71,11 +71,8 @@ export class VendorProductController {
       .build();
 
     var vendor = await this.vendorCustomerRepository.find(filter);
-
     var vendorProductsList: any = [];
-
     var self = this;
-
     await this.asyncForEach(vendor, async (vendor: any) => {
       var vendorFilter = new FilterBuilder<VendorProduct>()
         .where({vendor_id: vendor.vendor_id})

@@ -5,7 +5,7 @@ import {
   FilterExcludingWhere,
   repository,
 } from '@loopback/repository';
-import {get, param, patch, post, put, requestBody} from '@loopback/rest';
+import {get, param, patch, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Order} from '../models';
 import {
@@ -15,7 +15,6 @@ import {
   VendorRepository,
 } from '../repositories';
 import {OrderRequestBody} from '../schema/orders';
-import {SECURITY_SPEC} from '../utils/security-spec';
 
 export class OrderController {
   constructor(
@@ -31,17 +30,24 @@ export class OrderController {
 
   @post('/orders')
   @authenticate('jwt')
-  async create(@requestBody(OrderRequestBody) request: any): Promise<any> {
+  async create(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+    @requestBody(OrderRequestBody) request: any,
+  ): Promise<any> {
     console.log(request);
-    await this.orderRepository
-      .create(request)
-      .then(resp => {
-        console.log('resp', resp);
-      })
-      .catch(err => {
-        console.log('rrr', err);
-      });
-    return new Object();
+    request.user_id = currentUserProfile[securityId];
+
+    return new Promise((resolve, reject) => {
+      this.orderRepository
+        .create(request)
+        .then(resp => {
+          resolve({status: true, message: 'Order placed Successfully'});
+        })
+        .catch(err => {
+          resolve({status: false, message: 'Unable to place order'});
+        });
+    });
   }
 
   @get('/orders')
@@ -67,14 +73,7 @@ export class OrderController {
     return this.orderRepository.findById(id, filter);
   }
 
-  @patch('/orders/{id}', {
-    security: SECURITY_SPEC,
-    responses: {
-      '204': {
-        description: 'Order PATCH success',
-      },
-    },
-  })
+  @patch('/orders/{id}')
   @authenticate('jwt')
   async updateById(
     @param.path.string('id') id: string,
@@ -82,14 +81,5 @@ export class OrderController {
     order: Order,
   ): Promise<void> {
     await this.orderRepository.updateById(id, order);
-  }
-
-  @put('/orders/{id}')
-  @authenticate('jwt')
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() order: Order,
-  ): Promise<void> {
-    await this.orderRepository.replaceById(id, order);
   }
 }

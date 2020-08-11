@@ -32,17 +32,7 @@ export class ProductController {
     public vendorProductRepository: VendorProductRepository,
   ) {}
 
-  @post('/products', {
-    security: SECURITY_SPEC,
-    responses: {
-      '200': {
-        description: 'Product model instance',
-        content: {
-          'application/json': {schema: getModelSchemaRef(Product)},
-        },
-      },
-    },
-  })
+  @post('/products')
   @authenticate('jwt')
   async create(
     @requestBody({
