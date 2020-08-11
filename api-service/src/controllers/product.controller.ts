@@ -59,26 +59,9 @@ export class ProductController {
     return this.productRepository.create(product);
   }
 
-  //@authenticate('jwt')
+  @authenticate('jwt')
   @get('/products')
   async find() {
-    // currentUserProfile: UserProfile, // @inject(SecurityBindings.USER)
-    //return this.productRepository.find();
-
-    // this.vendorCustomerRepository
-    //   .findById(currentUserProfile[securityId])
-    //   .then(res => {
-    //     res.vendors.filter(vendor => {});
-    //   });
-
-    //   vendorCustomerRepository;
-    //   {
-    //     this.vendorProductRepository
-    //     {
-
-    //     }
-    //   }
-
     return {
       status: true,
       result: [
@@ -87,12 +70,20 @@ export class ProductController {
           vendor_name: 'Abc',
           products: [
             {
+              id: '5ecaadbaf5bc06c83c01955b',
               vendor_product_id: 1,
               name: 'Normal water',
               display_picture: 'string',
               price: 30.0,
             },
+          ],
+        },
+        {
+          vendor_Id: 23243423,
+          vendor_name: 'Abc',
+          products: [
             {
+              id: '5ecaadbaf4bc06c83c01955b',
               vendor_product_id: 2,
               name: 'Bisleri water',
               display_picture: 'string',

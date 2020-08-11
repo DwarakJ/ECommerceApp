@@ -1,7 +1,7 @@
 import {SecuritySchemeObject, ReferenceObject} from '@loopback/openapi-v3';
 
 export const SECURITY_SPEC = [{bearerAuth: []}];
-  export type SecuritySchemeObjects = {
+export type SecuritySchemeObjects = {
   [securityScheme: string]: SecuritySchemeObject | ReferenceObject;
 };
 export const SECURITY_SCHEME_SPEC: SecuritySchemeObjects = {
@@ -10,4 +10,4 @@ export const SECURITY_SCHEME_SPEC: SecuritySchemeObjects = {
     scheme: 'bearer',
     bearerFormat: 'jwt',
   },
-}; 
+};
