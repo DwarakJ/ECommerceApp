@@ -25,12 +25,14 @@ export class MyUserService implements UserService<User, Credentials> {
   ) {}
 
   async verifyCredentials(credentials: Credentials): Promise<User> {
+    console.log('service------', credentials);
+
     const invalidCredentialsError = 'Invalid email or password.';
     const invalidUserError = 'User found, cred not found';
 
-    var filter = new FilterBuilder()
-      .where({phone: {like: credentials.phone}})
-      .build();
+    var filter = new FilterBuilder().where({phone: credentials}).build();
+
+    console.log(filter);
 
     const foundUser = await this.userRepository.findOne(filter);
 
