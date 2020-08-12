@@ -7,7 +7,11 @@ enum orderstatus {
   Rejected = '0',
 }
 
-@model()
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class DeliveryStatus extends Entity {
   @property({
     type: 'string',

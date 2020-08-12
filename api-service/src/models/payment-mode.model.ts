@@ -5,7 +5,11 @@ enum paymentmode {
   Card = '2',
 }
 
-@model()
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class PaymentMode extends Entity {
   @property({
     type: 'string',

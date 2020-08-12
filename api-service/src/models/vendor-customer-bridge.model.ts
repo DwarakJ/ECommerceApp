@@ -1,6 +1,10 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class VendorCustomerBridge extends Entity {
   @property({
     type: 'string',
@@ -11,15 +15,11 @@ export class VendorCustomerBridge extends Entity {
 
   @property({
     type: 'string',
-    id: false,
-    generated: false,
   })
-  vendor_id?: string;
+  vendor_id: string;
 
   @property({
     type: 'string',
-    id: false,
-    generated: false,
   })
   customer_id?: string;
   constructor(data?: Partial<VendorCustomerBridge>) {

@@ -1,9 +1,8 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {Filter, FilterBuilder, repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
+import {FilterBuilder, repository} from '@loopback/repository';
+import {get, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {VendorCustomerBridge, VendorProduct} from '../models';
 import {
   VendorCustomerBridgeRepository,
   VendorProductRepository,
@@ -22,27 +21,15 @@ export class VendorProductController {
   async create(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(VendorProduct, {
-            title: 'NewVendorProduct',
-            exclude: ['id'],
-          }),
-        },
-      },
-    })
-    vendorProduct: VendorProduct,
-  ): Promise<VendorProduct> {
+    @requestBody() vendorProduct: any,
+  ): Promise<any> {
     vendorProduct.vendor_id = currentUserProfile[securityId];
     return this.vendorProductRepository.create(vendorProduct);
   }
 
   @get('/vendor-products')
   @authenticate('jwt')
-  async getAllVendorProducts(
-    @param.filter(VendorProduct) filter?: Filter<VendorProduct>,
-  ): Promise<any> {
+  async getAllVendorProducts(): Promise<any> {
     var allProducts = await this.vendorProductRepository.find();
     return new Promise((resolve, reject) => {
       var result = allProducts;
@@ -66,16 +53,16 @@ export class VendorProductController {
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<any> {
-    var filter = new FilterBuilder<VendorCustomerBridge>()
-      .where({customer_id: {like: currentUserProfile[securityId]}})
+    var filter = new FilterBuilder()
+      .where({customer_id: currentUserProfile[securityId]})
       .build();
 
     var vendor = await this.vendorCustomerRepository.find(filter);
     var vendorProductsList: any = [];
     var self = this;
     await this.asyncForEach(vendor, async (vendor: any) => {
-      var vendorFilter = new FilterBuilder<VendorProduct>()
-        .where({vendor_id: {like: vendor.vendor_id}})
+      var vendorFilter = new FilterBuilder()
+        .where({vendor_id: vendor.vendor_id})
         .build();
 
       var temp: any = await self.vendorProductRepository.find(vendorFilter);

@@ -1,7 +1,10 @@
 import {Entity, model, property} from '@loopback/repository';
 import {orderstatus, paymentmode, paymentstatus} from '../static';
-
-@model({settings: {strict: false}})
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class Order extends Entity {
   @property({
     type: 'string',
