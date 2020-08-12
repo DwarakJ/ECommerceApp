@@ -9,7 +9,6 @@ import {FilterBuilder, repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {PasswordHasherBindings} from '../keys';
-import {UserCredentials} from '../models/user-credentials.model';
 import {User} from '../models/user.model';
 import {UserCredentialsRepository} from '../repositories/user-credentials.repository';
 import {UserRepository} from '../repositories/user.repository';
@@ -29,17 +28,15 @@ export class MyUserService implements UserService<User, Credentials> {
     const invalidCredentialsError = 'Invalid email or password.';
     const invalidUserError = 'User found, cred not found';
 
-    const foundUser = await this.userRepository.findOne({
-      where: {phone: credentials.phone},
-    });
+    var filter = new FilterBuilder()
+      .where({phone: {like: credentials.phone}})
+      .build();
+
+    const foundUser = await this.userRepository.findOne(filter);
+
     if (!foundUser) {
       throw new HttpErrors.Unauthorized(invalidCredentialsError);
     }
-
-    var filter = new FilterBuilder<UserCredentials>()
-      .fields('userId')
-      .where({userId: foundUser.id})
-      .build();
 
     return foundUser;
   }

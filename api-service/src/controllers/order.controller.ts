@@ -1,10 +1,6 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {
-  FilterBuilder,
-  FilterExcludingWhere,
-  repository,
-} from '@loopback/repository';
+import {FilterBuilder, repository} from '@loopback/repository';
 import {get, param, patch, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Order} from '../models';
@@ -55,22 +51,30 @@ export class OrderController {
   async find(
     @inject(SecurityBindings.USER)
     currentuser: UserProfile,
-  ): Promise<Order[]> {
-    var filter = new FilterBuilder<Order>()
-      .where({user_id: currentuser[securityId]})
-      .build();
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      var filter = new FilterBuilder()
+        .where({user_id: {like: currentuser[securityId]}})
+        .build();
 
-    return this.orderRepository.find(filter);
+      this.orderRepository
+        .find(filter)
+        .then(res => {
+          resolve({status: true, result: res});
+        })
+        .catch((err: any) => {
+          resolve({
+            status: false,
+            message: 'Unable to fetch orders at the momemnt',
+          });
+        });
+    });
   }
 
   @get('/orders/{id}')
   @authenticate('jwt')
-  async findById(
-    @param.path.string('id') id: string,
-    @param.filter(Order, {exclude: 'where'})
-    filter?: FilterExcludingWhere<Order>,
-  ): Promise<Order> {
-    return this.orderRepository.findById(id, filter);
+  async findById(@param.path.string('id') id: string): Promise<Order> {
+    return this.orderRepository.findById(id);
   }
 
   @patch('/orders/{id}')

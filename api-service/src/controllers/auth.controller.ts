@@ -31,7 +31,7 @@ export class AuthController {
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       var filter = new FilterBuilder<User>()
-        .where({phone: request.phone})
+        .where({phone: {like: request.phone}})
         .build();
       this.userRepository
         .findOne(filter)
@@ -108,7 +108,7 @@ export class AuthController {
     @requestBody(OTPVerificationRequestBody) request: any,
   ): Promise<any> {
     var filter = new FilterBuilder<User>()
-      .where({phone: request.phone})
+      .where({phone: {like: request.phone}})
       .build();
     const founduser = await this.userRepository.findOne(filter);
     return new Promise((resolve, reject) => {
@@ -118,7 +118,7 @@ export class AuthController {
           console.log(res.data.Details);
           if (res.data.Details === 'OTP Matched') {
             var filter = new FilterBuilder<User>()
-              .where({phone: request.phone})
+              .where({phone: {like: request.phone}})
               .build();
             this.userRepository
               .findOne(filter)

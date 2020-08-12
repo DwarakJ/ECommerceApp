@@ -67,7 +67,7 @@ export class VendorProductController {
     currentUserProfile: UserProfile,
   ): Promise<any> {
     var filter = new FilterBuilder<VendorCustomerBridge>()
-      .where({customer_id: currentUserProfile[securityId]})
+      .where({customer_id: {like: currentUserProfile[securityId]}})
       .build();
 
     var vendor = await this.vendorCustomerRepository.find(filter);
@@ -75,7 +75,7 @@ export class VendorProductController {
     var self = this;
     await this.asyncForEach(vendor, async (vendor: any) => {
       var vendorFilter = new FilterBuilder<VendorProduct>()
-        .where({vendor_id: vendor.vendor_id})
+        .where({vendor_id: {like: vendor.vendor_id}})
         .build();
 
       var temp: any = await self.vendorProductRepository.find(vendorFilter);
