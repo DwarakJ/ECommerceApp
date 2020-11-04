@@ -1,27 +1,11 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import { Vendor } from './vendor.model';
-import { User } from './user.model';
+import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class VendorCustomerBridge extends Entity {
-  @property({
-    type: 'string',
-    required: false,
-  })
-  vendor_id: string;
-
-  @belongsTo(() => Vendor)
-  vendorId: string
-
-  @property({
-    type: 'string',
-    required: false,
-  })
-  customer_id: string;
-
-  @belongsTo(() => User)
-  customerId: string
-
   @property({
     type: 'string',
     id: true,
@@ -29,6 +13,15 @@ export class VendorCustomerBridge extends Entity {
   })
   id?: string;
 
+  @property({
+    type: 'string',
+  })
+  vendor_id: string;
+
+  @property({
+    type: 'string',
+  })
+  customer_id?: string;
   constructor(data?: Partial<VendorCustomerBridge>) {
     super(data);
   }

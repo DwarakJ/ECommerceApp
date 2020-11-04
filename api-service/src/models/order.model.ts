@@ -1,6 +1,10 @@
 import {Entity, model, property} from '@loopback/repository';
-
-@model()
+import {orderstatus, paymentmode, paymentstatus} from '../static';
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class Order extends Entity {
   @property({
     type: 'string',
@@ -11,25 +15,17 @@ export class Order extends Entity {
 
   @property({
     type: 'string',
-    required: true,
-  })
-  vendor_product_id: string;
-
-  @property({
-    type: 'string',
-    required: true,
   })
   user_id: string;
 
   @property({
-    type: 'string',
-    required: true,
+    type: 'object',
   })
-  vendor_id: string;
+  products: object;
 
   @property({
     type: 'date',
-    required: true,
+    defaultFn: 'now',
   })
   created_time: string;
 
@@ -39,27 +35,21 @@ export class Order extends Entity {
   delivered_time?: string;
 
   @property({
-    type: 'number',
-    required: true,
+    type: 'string',
   })
-  quantity: number;
+  order_status?: orderstatus;
 
   @property({
-    type: 'number',
-  })
-  order_status?: number;
-
-  @property({
-    type: 'boolean',
-    required: true,
+    type: 'string',
     default: false,
   })
-  payment_status: boolean;
+  payment_status: paymentstatus;
 
   @property({
-    type: 'number',
+    type: 'string',
+    default: 'COD',
   })
-  payment_mode?: number;
+  payment_mode?: paymentmode;
 
   constructor(data?: Partial<Order>) {
     super(data);

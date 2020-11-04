@@ -8,9 +8,7 @@ export class OrderRepository extends DefaultCrudRepository<
   typeof Order.prototype.id,
   OrderRelations
 > {
-  constructor(
-    @inject('datasources.mongo') dataSource: MongoDataSource,
-  ) {
+  constructor(@inject('datasources.mongo') dataSource: MongoDataSource) {
     super(Order, dataSource);
   }
 }

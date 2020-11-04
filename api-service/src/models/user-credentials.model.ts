@@ -1,5 +1,5 @@
 import {Entity, model, property} from '@loopback/repository';
-import { User } from './user.model';
+import {User} from './user.model';
 
 @model()
 export class UserCredentials extends Entity {
@@ -37,4 +37,5 @@ export interface UserCredentialsRelations {
   // describe navigational properties here
 }
 
-export type UserCredentialsWithRelations = UserCredentials & UserCredentialsRelations;
+export type UserCredentialsWithRelations = UserCredentials &
+  UserCredentialsRelations;

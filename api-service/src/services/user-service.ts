@@ -3,62 +3,41 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {HttpErrors} from '@loopback/rest';
-import {Credentials, UserRepository} from '../repositories/user.repository';
-import {UserCredentialsRepository} from '../repositories/user-credentials.repository'
-import {User} from '../models/user.model';
 import {UserService} from '@loopback/authentication';
-import {UserProfile, securityId} from '@loopback/security';
-import {repository, FilterBuilder} from '@loopback/repository';
-import {PasswordHasher} from './hash.password.bcryptjs';
-import {PasswordHasherBindings} from '../keys';
 import {inject} from '@loopback/context';
-import { UserCredentials } from '../models/user-credentials.model';
+import {FilterBuilder, repository} from '@loopback/repository';
+import {HttpErrors} from '@loopback/rest';
+import {securityId, UserProfile} from '@loopback/security';
+import {PasswordHasherBindings} from '../keys';
+import {User} from '../models/user.model';
+import {UserCredentialsRepository} from '../repositories/user-credentials.repository';
+import {UserRepository} from '../repositories/user.repository';
+import {Credentials} from '../schema/user-profile';
+import {PasswordHasher} from './hash.password.bcryptjs';
 
 export class MyUserService implements UserService<User, Credentials> {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
-    @repository(UserCredentialsRepository) public userCredentialRepository : UserCredentialsRepository,
+    @repository(UserCredentialsRepository)
+    public userCredentialRepository: UserCredentialsRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public passwordHasher: PasswordHasher,
   ) {}
 
   async verifyCredentials(credentials: Credentials): Promise<User> {
-    const invalidCredentialsError = 'Invalid email or password.';
+    console.log('service------', credentials);
 
+    const invalidCredentialsError = 'Invalid email or password.';
     const invalidUserError = 'User found, cred not found';
 
-    const foundUser = await this.userRepository.findOne({
-      where: {email: credentials.email},
-    });
+    var filter = new FilterBuilder().where({phone: credentials}).build();
+
+    console.log(filter);
+
+    const foundUser = await this.userRepository.findOne(filter);
+
     if (!foundUser) {
       throw new HttpErrors.Unauthorized(invalidCredentialsError);
-    }
-
-    //console.log(f)
-    var filter = new FilterBuilder<UserCredentials>().fields('userId').where({userId:foundUser.id}).build();
-    
-    var credentialsFound = foundUser.password
-    //.find({where: {"userId": foundUser.id},});
-
-    //console.log(filter)
-    //console.log("User password "+credentials.password)
-    //console.log("DB Password "+credentialsFound)
-    //await this.userRepository.findCredentials(
-    //  foundUser.id,
-    //);
-    if (!credentialsFound) {
-      throw new HttpErrors.Unauthorized("User: "+foundUser.id+", "+invalidUserError);
-    }
-
-    const passwordMatched = await this.passwordHasher.comparePassword(
-      credentials.password,
-      credentialsFound,
-    );
-
-    const passworderror = "Password Did not match"
-    if (!passwordMatched) {
-      throw new HttpErrors.Unauthorized(passworderror);
     }
 
     return foundUser;
@@ -67,15 +46,14 @@ export class MyUserService implements UserService<User, Credentials> {
   convertToUserProfile(user: User): UserProfile {
     // since first name and lastName are optional, no error is thrown if not provided
     let userName = '';
-    if (user.fname) userName = `${user.fname}`;
-    if (user.lname)
-      userName = user.fname
-        ? `${userName} ${user.lname}`
-        : `${user.lname}`;
+    if (user.first_name) userName = `${user.first_name}`;
+    if (user.last_name)
+      userName = user.first_name
+        ? `${userName} ${user.last_name}`
+        : `${user.last_name}`;
     const userProfile = {
-      [securityId]: user.id,
+      [securityId]: user.userId,
       name: userName,
-      id: user.id,
       roles: user.roles,
     };
 

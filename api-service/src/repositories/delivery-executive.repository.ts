@@ -8,9 +8,7 @@ export class DeliveryExecutiveRepository extends DefaultCrudRepository<
   typeof DeliveryExecutive.prototype.id,
   DeliveryExecutiveRelations
 > {
-  constructor(
-    @inject('datasources.mongo') dataSource: MongoDataSource,
-  ) {
+  constructor(@inject('datasources.mongo') dataSource: MongoDataSource) {
     super(DeliveryExecutive, dataSource);
   }
 }

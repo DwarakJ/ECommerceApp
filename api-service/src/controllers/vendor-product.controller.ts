@@ -1,175 +1,85 @@
+import {authenticate} from '@loopback/authentication';
+import {inject} from '@loopback/core';
+import {FilterBuilder, repository} from '@loopback/repository';
+import {get, post, requestBody} from '@loopback/rest';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-} from '@loopback/rest';
-import {VendorProduct} from '../models';
-import {VendorProductRepository} from '../repositories';
-import {userId} from '../services/jwt-service'
+  VendorCustomerBridgeRepository,
+  VendorProductRepository,
+} from '../repositories';
 
 export class VendorProductController {
   constructor(
     @repository(VendorProductRepository)
-    public vendorProductRepository : VendorProductRepository,
+    public vendorProductRepository: VendorProductRepository,
+    @repository(VendorCustomerBridgeRepository)
+    public vendorCustomerRepository: VendorCustomerBridgeRepository,
   ) {}
 
-  @post('/vendor-products', {
-    responses: {
-      '200': {
-        description: 'VendorProduct model instance',
-        content: {'application/json': {schema: getModelSchemaRef(VendorProduct)}},
-      },
-    },
-  })
+  @post('/vendor-products')
+  @authenticate('jwt')
   async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(VendorProduct, {
-            title: 'NewVendorProduct',
-            exclude: ['id'],
-          }),
-        },
-      },
-    })
-    vendorProduct: VendorProduct,
-  ): Promise<VendorProduct> {
-    vendorProduct.vendor_id = userId
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+    @requestBody() vendorProduct: any,
+  ): Promise<any> {
+    vendorProduct.vendor_id = currentUserProfile[securityId];
     return this.vendorProductRepository.create(vendorProduct);
   }
 
-  @get('/vendor-products/count', {
-    responses: {
-      '200': {
-        description: 'VendorProduct model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async count(
-    @param.where(VendorProduct) where?: Where<VendorProduct>,
-  ): Promise<Count> {
-    return this.vendorProductRepository.count(where);
+  @get('/vendor-products')
+  @authenticate('jwt')
+  async getAllVendorProducts(): Promise<any> {
+    var allProducts = await this.vendorProductRepository.find();
+    return new Promise((resolve, reject) => {
+      var result = allProducts;
+      console.log(result);
+      resolve({
+        status: true,
+        result: {products: [{result}]},
+      });
+    });
   }
 
-  @get('/vendor-products', {
-    responses: {
-      '200': {
-        description: 'Array of VendorProduct model instances',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'array',
-              items: getModelSchemaRef(VendorProduct, {includeRelations: true}),
-            },
-          },
-        },
-      },
-    },
-  })
-  async find(
-    @param.filter(VendorProduct) filter?: Filter<VendorProduct>,
-  ): Promise<VendorProduct[]> {
-    return this.vendorProductRepository.find(filter);
-  }
+  asyncForEach = async (array: any, callback: any) => {
+    for (let index = 0; index < array.length; index++) {
+      await callback(array[index], index, array);
+    }
+  };
 
-  @patch('/vendor-products', {
-    responses: {
-      '200': {
-        description: 'VendorProduct PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(VendorProduct, {partial: true}),
-        },
-      },
-    })
-    vendorProduct: VendorProduct,
-    @param.where(VendorProduct) where?: Where<VendorProduct>,
-  ): Promise<Count> {
-    return this.vendorProductRepository.updateAll(vendorProduct, where);
-  }
+  @get('/vendor-products-by-customer')
+  @authenticate('jwt')
+  async getProductsByCustomer(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+  ): Promise<any> {
+    var filter = new FilterBuilder()
+      .where({customer_id: currentUserProfile[securityId]})
+      .build();
 
-  @get('/vendor-products/{id}', {
-    responses: {
-      '200': {
-        description: 'VendorProduct model instance',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(VendorProduct, {includeRelations: true}),
-          },
-        },
-      },
-    },
-  })
-  async findById(
-    @param.path.string('id') id: string,
-    @param.filter(VendorProduct, {exclude: 'where'}) filter?: FilterExcludingWhere<VendorProduct>
-  ): Promise<VendorProduct> {
-    return this.vendorProductRepository.findById(id, filter);
-  }
+    var vendor = await this.vendorCustomerRepository.find(filter);
+    var vendorProductsList: any = [];
+    var self = this;
+    await this.asyncForEach(vendor, async (vendor: any) => {
+      var vendorFilter = new FilterBuilder()
+        .where({vendor_id: vendor.vendor_id})
+        .build();
 
-  @patch('/vendor-products/{id}', {
-    responses: {
-      '204': {
-        description: 'VendorProduct PATCH success',
-      },
-    },
-  })
-  async updateById(
-    @param.path.string('id') id: string,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(VendorProduct, {partial: true}),
-        },
-      },
-    })
-    vendorProduct: VendorProduct,
-  ): Promise<void> {
-    await this.vendorProductRepository.updateById(id, vendorProduct);
-  }
+      var temp: any = await self.vendorProductRepository.find(vendorFilter);
 
-  @put('/vendor-products/{id}', {
-    responses: {
-      '204': {
-        description: 'VendorProduct PUT success',
-      },
-    },
-  })
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() vendorProduct: VendorProduct,
-  ): Promise<void> {
-    await this.vendorProductRepository.replaceById(id, vendorProduct);
-  }
+      var vendor_products = {
+        vendor_id: vendor.vendor_id,
+        products: temp,
+      };
+      vendorProductsList.push(vendor_products);
+    });
 
-  @del('/vendor-products/{id}', {
-    responses: {
-      '204': {
-        description: 'VendorProduct DELETE success',
-      },
-    },
-  })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.vendorProductRepository.deleteById(id);
+    return new Promise((resolve, reject) => {
+      var result = vendorProductsList;
+      resolve({
+        status: true,
+        result: result,
+      });
+    });
   }
 }

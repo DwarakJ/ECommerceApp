@@ -1,6 +1,10 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class VendorProduct extends Entity {
   @property({
     type: 'string',
@@ -32,10 +36,10 @@ export class VendorProduct extends Entity {
   unit: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  price: string;
+  price: number;
 
   @property({
     type: 'string',

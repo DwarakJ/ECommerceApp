@@ -10,6 +10,19 @@
   "engines": {
     "node": ">=10"
   },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm start",
+    "ext": "ts"
+  },
   "scripts": {
     "build": "lb-tsc",
     "build:watch": "lb-tsc --watch",
@@ -29,7 +42,8 @@
     "docker:run": "docker run -p 3000:3000 -d watersense",
     "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
-    "start": "node -r source-map-support/register .",
+    "start": "npm run prettier:fix && node -r source-map-support/register .",
+    "dev": "nodemon --watch src --ignore 'src/**/*.spec.ts' --exec npm start",
     "prepublishOnly": "npm run test"
   },
   "repository": {
@@ -55,27 +69,29 @@
     "@loopback/rest": "^3.1.0",
     "@loopback/rest-explorer": "^2.0.2",
     "@loopback/service-proxy": "^2.0.2",
-    "loopback-connector-mongodb": "^4.2.0",
-    "openapi-to-graphql-cli": "^2.1.0",
-    "tslib": "^1.10.0",
-    "isemail": "3.2.0",
-    "bcryptjs": "2.4.3",
     "@types/jsonwebtoken": "8.3.9",
-    "jsonwebtoken": "8.5.1"
+    "axios": "^0.19.2",
+    "bcryptjs": "2.4.3",
+    "isemail": "3.2.0",
+    "jsonwebtoken": "8.5.1",
+    "loopback-connector-mongodb": "5.0.1",
+    "openapi-to-graphql-cli": "^2.1.0",
+    "tslib": "^1.10.0"
   },
   "devDependencies": {
     "@loopback/build": "^5.0.0",
-    "source-map-support": "^0.5.16",
-    "@loopback/testlab": "^2.0.2",
-    "@types/node": "^10.17.17",
-    "@typescript-eslint/parser": "^2.25.0",
-    "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@loopback/eslint-config": "^6.0.2",
+    "@loopback/testlab": "^2.0.2",
+    "@types/bcryptjs": "2.4.2",
+    "@types/node": "^10.17.17",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-eslint-plugin": "^2.2.1",
     "eslint-plugin-mocha": "^6.3.0",
-    "typescript": "~3.8.3",
-    "@types/bcryptjs": "2.4.2"
+    "nodemon": "^2.0.4",
+    "source-map-support": "^0.5.16",
+    "typescript": "~3.8.3"
   }
 }

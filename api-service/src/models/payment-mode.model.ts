@@ -1,18 +1,22 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+enum paymentmode {
+  COD = '1',
+  Card = '2',
+}
+
+@model({
+  settings: {
+    strictObjectIDCoercion: true,
+  },
+})
 export class PaymentMode extends Entity {
   @property({
     type: 'string',
-    id: true,
-    generated: false,
     required: true,
-  })
-  id: string;
-
-  @property({
-    type: 'string',
-    required: true,
+    jsonSchema: {
+      enum: Object.values(paymentmode),
+    },
   })
   status: string;
 
