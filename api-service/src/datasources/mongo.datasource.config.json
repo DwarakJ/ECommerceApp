@@ -1,7 +1,7 @@
 {
   "name": "WatersenseCluster",
   "connector": "mongodb",
-  "url": "mongodb+srv://test:test123@cluster0.qkvvo.mongodb.net/test",
+  "url": "mongodb+srv://xxxxxx/test",
   "useNewUrlParser": true,
   "useUnifiedTopology": true
 }
