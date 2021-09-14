@@ -47,6 +47,12 @@ export class VendorProduct extends Entity {
   })
   display_picture: string;
 
+  @property({
+    type: 'bool',
+    required: false,
+  })
+  is_available: string;
+
   constructor(data?: Partial<VendorProduct>) {
     super(data);
   }

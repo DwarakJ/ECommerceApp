@@ -15,6 +15,12 @@ export class Product extends Entity {
 
   @property({
     type: 'string',
+    id: number
+  })
+  cat_id?: string;
+
+  @property({
+    type: 'string',
     required: true,
   })
   name: string;

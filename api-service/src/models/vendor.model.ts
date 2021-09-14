@@ -30,6 +30,11 @@ export class Vendor extends Entity {
   })
   license_number?: string;
 
+  @property({
+    type: 'boolean',
+  })
+  status?: boolean;
+
   constructor(data?: Partial<Vendor>) {
     super(data);
   }

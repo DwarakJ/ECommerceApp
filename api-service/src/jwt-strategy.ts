@@ -21,7 +21,8 @@ import {TokenServiceBindings} from './keys';
 
 @bind(asAuthStrategy, asSpecEnhancer)
 export class JWTAuthenticationStrategy
-  implements AuthenticationStrategy, OASEnhancer {
+  implements AuthenticationStrategy, OASEnhancer
+{
   name = 'jwt';
 
   constructor(

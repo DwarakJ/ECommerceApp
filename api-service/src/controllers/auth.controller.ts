@@ -127,9 +127,8 @@ export class AuthController {
                   let user = await this.userService.verifyCredentials(
                     res.phone,
                   );
-                  const userProfile = this.userService.convertToUserProfile(
-                    user,
-                  );
+                  const userProfile =
+                    this.userService.convertToUserProfile(user);
                   const token = await this.jwtService.generateToken(
                     userProfile,
                   );

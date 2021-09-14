@@ -30,5 +30,5 @@ export interface VendorDeliveryExecutiveBridgeRelations {
   // describe navigational properties here
 }
 
-export type VendorDeliveryExecutiveBridgeWithRelations = VendorDeliveryExecutiveBridge &
-  VendorDeliveryExecutiveBridgeRelations;
+export type VendorDeliveryExecutiveBridgeWithRelations =
+  VendorDeliveryExecutiveBridge & VendorDeliveryExecutiveBridgeRelations;

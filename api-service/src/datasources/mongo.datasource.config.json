@@ -1,12 +1,7 @@
 {
-  "name": "mongo",
+  "name": "WatersenseCluster",
   "connector": "mongodb",
-  "url": "",
-  "host": "",
-  "port": 27017,
-  "user": "",
-  "password": "",
-  "database": "watersense",
+  "url": "mongodb+srv://test:test123@cluster0.qkvvo.mongodb.net/test",
   "useNewUrlParser": true,
   "useUnifiedTopology": true
 }

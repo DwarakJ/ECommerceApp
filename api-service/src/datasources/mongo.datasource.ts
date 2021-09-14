@@ -8,8 +8,10 @@ import {juggler} from '@loopback/repository';
 import config from './mongo.datasource.config.json';
 
 @lifeCycleObserver('datasource')
-export class MongoDataSource extends juggler.DataSource
-  implements LifeCycleObserver {
+export class MongoDataSource
+  extends juggler.DataSource
+  implements LifeCycleObserver
+{
   static dataSourceName = 'mongo';
 
   constructor(

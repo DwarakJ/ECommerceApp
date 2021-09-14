@@ -1,10 +1,36 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, Model} from '@loopback/repository';
 import {orderstatus, paymentmode, paymentstatus} from '../static';
 @model({
   settings: {
     strictObjectIDCoercion: true,
   },
 })
+
+@model()
+class ProductInfo extends Model {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  id: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  totalprice: string;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  qty: number;
+
+  constructor(data?: Partial<ProductInfo>) {
+    super(data);
+  }
+}
+
 export class Order extends Entity {
   @property({
     type: 'string',
@@ -18,10 +44,8 @@ export class Order extends Entity {
   })
   user_id: string;
 
-  @property({
-    type: 'object',
-  })
-  products: object;
+  @property.array(ProductInfo, {required: true})
+  products: ProductInfo[];
 
   @property({
     type: 'date',
@@ -50,6 +74,11 @@ export class Order extends Entity {
     default: 'COD',
   })
   payment_mode?: paymentmode;
+
+  @property({
+    type: 'number'
+  })
+  overallprice?: number;
 
   constructor(data?: Partial<Order>) {
     super(data);
